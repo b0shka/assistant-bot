@@ -1,7 +1,6 @@
 beautifulsoup4==4.9.3
 bs4==0.0.1
 gTTS==2.2.2
-pandas==1.2.2
 pyTelegramBotAPI==3.7.6
 pytesseract==0.3.7
 requests==2.23.0

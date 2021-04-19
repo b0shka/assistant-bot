@@ -4,9 +4,8 @@
 from bs4 import BeautifulSoup as BS
 import speech_recognition as sr
 from random import randint
-from telebot import types
-import pandas as pd
 import telebot
+from telebot import types
 import requests
 import random
 import re
@@ -47,7 +46,7 @@ logger = logging.getLogger()
 def help(message):
 	access = verify_id(message)
 	if access == 1:
-		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nНаселение мира\nТоп стран по населению\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)'
+		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)'
 		bot.send_message(message.chat.id, send_mess, parse_mode='html')
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -91,7 +90,7 @@ def start(message):
 		item4 = types.KeyboardButton('Что ты умеешь?')
 		item5 = types.KeyboardButton('Статистика по коронавирусу')
 		markup.add(item1, item2, item3, item4, item5)
-		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nСтатистика по коронавирусу\nРадномное число\nНаселение мира на данный момент\nТоп стран по населению\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
+		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nСтатистика по коронавирусу\nРадномное число\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
 		bot.send_message(message.chat.id, send_mess, parse_mode='html', reply_markup = markup)
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -353,10 +352,6 @@ def answer(call):
 		bot.register_next_step_handler(send, number_random)
 		add_message(call.message, call.data)
 
-	elif call.data == 'people':
-		parse_how_much_people(call.message)
-		add_message(call.message, call.data)
-
 	elif call.data == 'what_best':
 		send = bot.send_message(call.message.chat.id, 'Введите 2 действия через или (поесть или поспать)')
 		bot.register_next_step_handler(send, what_the_best)
@@ -366,36 +361,6 @@ def answer(call):
 		send = bot.send_message(call.message.chat.id, 'Введите два числа через пробел, само число и систему счисления в которую перевести')
 		bot.register_next_step_handler(send, number_system)
 		add_message(call.message, call.data)
-
-	elif call.data == 'top_people':
-		try:
-			tables = pd.read_html("https://countrymeters.info/ru/World")
-			numbers = tables[4]
-			test = numbers[3]
-			text1 = str(test[0])
-			text2 = str(test[1])
-			text3 = str(test[2])
-			text4 = str(test[3])
-			text5 = str(test[4])
-			text6 = str(test[5])
-			text7 = str(test[6])
-			text8 = str(test[7])
-			text9 = str(test[8])
-			text10 = str(test[9])
-			bot.send_message(call.message.chat.id, 'Население Китая: ' + str(text1), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Индии: ' + str(text2), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население США: ' + str(text3), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Индонезии: ' + str(text4), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Бразилии: ' + str(text5), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Пакистана: ' + str(text6), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Нигерии: ' + str(text7), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Бангладеша: ' + str(text8), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население России: ' + str(text9), parse_mode='html')
-			bot.send_message(call.message.chat.id, 'Население Мексики: ' + str(text10), parse_mode='html')
-			add_message(call.message, call.data)
-		except Exception as e:
-			bot.send_message(call.message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
-			logger.error('[' + str(call.message.from_user.first_name) + ' ' + str(call.message.from_user.last_name) + ' ' + str(call.message.from_user.id) + '] [Топ стнан по населению] ' + str(e))
 
 	#elif call.data == 'click_download_video':
 		#send = bot.send_message(call.message.chat.id, 'Введите url')
@@ -463,28 +428,24 @@ def result_message(message, text_message):
 		item_5 = types.InlineKeyboardButton(text = 'Да или нет', callback_data = 'yes_or_not')
 		item_6 = types.InlineKeyboardButton(text = '1 или 2', callback_data = 'one_or_two')
 		item_7 = types.InlineKeyboardButton(text = 'Любое число', callback_data = 'random_number')
-		item_8 = types.InlineKeyboardButton(text = 'Население', callback_data = 'people')
-		item_9 = types.InlineKeyboardButton(text = 'Что лучше?', callback_data = 'what_best')
-		item_10 = types.InlineKeyboardButton(text = 'Сократить ссылку', callback_data = 'small_link')
-		item_11 = types.InlineKeyboardButton(text = 'Системы счисления', callback_data = 'system_number')
+		item_8 = types.InlineKeyboardButton(text = 'Что лучше?', callback_data = 'what_best')
+		item_9 = types.InlineKeyboardButton(text = 'Сократить ссылку', callback_data = 'small_link')
+		item_10 = types.InlineKeyboardButton(text = 'Системы счисления', callback_data = 'system_number')
 		#item_12 = types.InlineKeyboardButton(text = 'Скачать видео с Youtube', callback_data = 'click_download_video')
-		item_13 = types.InlineKeyboardButton(text = 'Скачать аудио с Youtube', callback_data = 'click_download_audio')
-		item_14 = types.InlineKeyboardButton(text = 'Топ стран по населению', callback_data = 'top_people')
-		item_15 = types.InlineKeyboardButton(text = 'Конвертация голосового сообщения с текст', callback_data = 'convert_audio_to_text')
-		item_16 = types.InlineKeyboardButton(text = 'Конвертация теста в аудио', callback_data = 'convert_text_to_audio')
-		item_17 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
-		item_18 = types.InlineKeyboardButton(text = 'Конвертировать фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
+		item_12 = types.InlineKeyboardButton(text = 'Скачать аудио с Youtube', callback_data = 'click_download_audio')
+		item_13 = types.InlineKeyboardButton(text = 'Конвертация голосового сообщения с текст', callback_data = 'convert_audio_to_text')
+		item_14 = types.InlineKeyboardButton(text = 'Конвертация теста в аудио', callback_data = 'convert_text_to_audio')
+		item_15 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
+		item_16 = types.InlineKeyboardButton(text = 'Конвертировать фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
 		#item_19 = types.InlineKeyboardButton(text = 'Получить текстовую версию видео на Youtube', callback_data = 'convert_video_youtube_to_text')
 
 		markup_inline.add(item_1, item_2, item_3)
 		markup_inline.add(item_4, item_5, item_6)
 		markup_inline.add(item_7, item_8,item_9)
-		markup_inline.add(item_10, item_11)
-		markup_inline.add(item_14, item_13)
+		markup_inline.add(item_10, item_12)
+		markup_inline.add(item_13, item_14)
 		markup_inline.add(item_15)
 		markup_inline.add(item_16)
-		markup_inline.add(item_17)
-		markup_inline.add(item_18)
 		#markup_inline.add(item_19)
 		bot.send_message(message.chat.id, 'Вот что я умею\nДля полного списка команд введите /help', reply_markup = markup_inline)
 
@@ -583,35 +544,6 @@ def result_message(message, text_message):
 
 	elif 'население' in search or 'сколько людей' in search:
 		parse_how_much_people(message)
-
-	elif 'топ' in search or 'по населению' in search or 'по численности' in search:
-		try:
-			tables = pd.read_html("https://countrymeters.info/ru/World")
-			numbers = tables[4]
-			test = numbers[3]
-			text1 = str(test[0])
-			text2 = str(test[1])
-			text3 = str(test[2])
-			text4 = str(test[3])
-			text5 = str(test[4])
-			text6 = str(test[5])
-			text7 = str(test[6])
-			text8 = str(test[7])
-			text9 = str(test[8])
-			text10 = str(test[9])
-			bot.send_message(message.chat.id, 'Население Китая: ' + str(text1), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Индии: ' + str(text2), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население США: ' + str(text3), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Индонезии: ' + str(text4), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Бразилии: ' + str(text5), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Пакистана: ' + str(text6), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Нигерии: ' + str(text7), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Бангладеша: ' + str(text8), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население России: ' + str(text9), parse_mode='html')
-			bot.send_message(message.chat.id, 'Население Мексики: ' + str(text10), parse_mode='html')
-		except Exception as e:
-			bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
-			logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Топ стран по населению] ' + str(e))
 
 	elif 'счисления' in search or 'систем' in search:
 		send = bot.send_message(message.chat.id, 'Введите два числа через пробел, само число и систему счисления в которую перевести')
@@ -1204,19 +1136,6 @@ def small_link(message):
 	except Exception as e:
 		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Сокращение ссылки] ' + str(e))
-
-
-# Парсинг населения земли
-def parse_how_much_people(type_message):
-	try:
-		tables = pd.read_html("https://countrymeters.info/ru/World")
-		numbers = tables[0]
-		number = numbers[0]
-		test = number[0]
-		bot.send_message(type_message.chat.id, 'Население земли ' + str(test[0]) + '.' + str(test[2]) + str(test[3]) + str(test[4]) + '.' + str(test[6]) + str(test[7]) + str(test[7]) + '.' + str(test[10]) + str(test[11]) + str(test[12]) + ' человек', parse_mode='html')
-	except Exception as e:
-		bot.send_message(type_message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
-		logger.error('[' + str(type_message.from_user.first_name) + ' ' + str(type_message.from_user.last_name) + ' ' + str(type_message.from_user.id) + '] [Парсинг топ стран по населению] ' + str(e))
 
 
 # Перевод систем счисления
