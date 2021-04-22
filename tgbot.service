@@ -6,9 +6,9 @@ After=network.target
 User=b0shka
 Group=b0shka
 
-WorkingDirectory=/home/b0shka/assistant-bot/
-Enviroment="PYTHONPATH=/usr/local/bin/"
-ExecStart=/usr/local/bin/python3 /home/b0shka/assistant-bot/assistant.py
+WorkingDirectory=/home/b0shka/assistant/
+ExecStart=/usr/bin/python3 /home/b0shka/assistant/assistant.py
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
