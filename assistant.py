@@ -46,7 +46,7 @@ logger = logging.getLogger()
 def help(message):
 	access = verify_id(message)
 	if access == 1:
-		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)'
+		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nНовости и слова по которым искать\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)'
 		bot.send_message(message.chat.id, send_mess, parse_mode='html')
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -90,7 +90,7 @@ def start(message):
 		item4 = types.KeyboardButton('Что ты умеешь?')
 		item5 = types.KeyboardButton('Статистика по коронавирусу')
 		markup.add(item1, item2, item3, item4, item5)
-		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nСтатистика по коронавирусу\nРадномное число\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
+		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nНовости по ключевым словам\nСтатистика по коронавирусу\nРадномное число\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
 		bot.send_message(message.chat.id, send_mess, parse_mode='html', reply_markup = markup)
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -332,6 +332,11 @@ def answer(call):
 		parse_news(call.message)
 		add_message(call.message, call.data)
 
+	elif call.data == 'news_word':
+		send = bot.send_message(call.message.chat.id, 'Введите ключевые слова')
+		bot.register_next_step_handler(send, get_word_news)
+		add_message(call.message, call.data)
+
 	elif call.data == 'virus':
 		parse_stat_covid(call.message)
 		add_message(call.message, call.data)
@@ -410,8 +415,15 @@ def result_message(message, text_message):
 	if 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
 		parse_valuta(message)
 
-	elif 'новости' in search or 'new' in search:
+	elif search == 'новости' or search == 'new':
 		parse_news(message)
+
+	elif 'новости' in search or 'new' in search:
+		if 'новости' in search:
+			text_news = search.split('новости')
+		elif 'news' in search:
+			text_news = search.split('news')
+		news_words(message, text_news[1])
 
 	elif 'погода' in search or 'weather' in search:
 		parse_weather(message)
@@ -431,6 +443,7 @@ def result_message(message, text_message):
 		item_8 = types.InlineKeyboardButton(text = 'Что лучше?', callback_data = 'what_best')
 		item_9 = types.InlineKeyboardButton(text = 'Сократить ссылку', callback_data = 'small_link')
 		item_10 = types.InlineKeyboardButton(text = 'Системы счисления', callback_data = 'system_number')
+		item_11 = types.InlineKeyboardButton(text = 'Новости по ключевым словам', callback_data='news_word')
 		#item_12 = types.InlineKeyboardButton(text = 'Скачать видео с Youtube', callback_data = 'click_download_video')
 		item_12 = types.InlineKeyboardButton(text = 'Скачать аудио с Youtube', callback_data = 'click_download_audio')
 		item_13 = types.InlineKeyboardButton(text = 'Конвертация голосового сообщения с текст', callback_data = 'convert_audio_to_text')
@@ -442,9 +455,9 @@ def result_message(message, text_message):
 		markup_inline.add(item_1, item_2, item_3)
 		markup_inline.add(item_4, item_5, item_6)
 		markup_inline.add(item_7, item_8,item_9)
-		markup_inline.add(item_10, item_12)
-		markup_inline.add(item_13, item_14)
-		markup_inline.add(item_15)
+		markup_inline.add(item_10, item_11)
+		markup_inline.add(item_12, item_13)
+		markup_inline.add(item_14, item_15)
 		markup_inline.add(item_16)
 		#markup_inline.add(item_19)
 		bot.send_message(message.chat.id, 'Вот что я умею\nДля полного списка команд введите /help', reply_markup = markup_inline)
@@ -877,6 +890,31 @@ def parse_news(type_message):
 	except Exception as e:
 		bot.send_message(type_message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[' + str(type_message.from_user.first_name) + ' ' + str(type_message.from_user.last_name) + ' ' + str(type_message.from_user.id) + '] [Парсинг новостей] ' + str(e))
+
+def news_words(message, text_news):
+	try:
+		r = requests.get(f'https://newssearch.yandex.ru/news/search?from=tabbar&text={text_news}')
+		html = BS(r.content, 'html.parser')
+		i = 0
+		while i != 15:
+			try:
+				for el in html.select('.news-search-story'):
+					if i == 15:
+						break
+					title = el.select('.news-search-story__title')
+					news = title[0].text
+					bot.send_message(message.chat.id, news, parse_mode='html')
+					i += 1
+			except IndexError:
+				break
+	except Exception as e:
+		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
+		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Парсинг новостей по ключевым словам] ' + str(e))
+
+
+def get_word_news(message):
+	words = message.text
+	news_words(message, words)
 
 
 # Парсинг курса валюты
