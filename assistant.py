@@ -767,7 +767,7 @@ def mailing_subscribe_users(message):
 	try:
 		while True:
 			get_subscribe_user()
-			if str(time.strftime("%H:%M:%S")) == str("22:00:00"):
+			if str(time.strftime("%H:%M:%S")) == str("18:00:00"):
 				try:
 					for i in subscribe_users:
 						mailing_message(message, i)
@@ -884,8 +884,10 @@ def parse_news(type_message):
 				if i == 15:
 					break
 				title = el.select('.mg-card__title')
+				link = el.select('.mg-card__link')
 				news = title[0].text
-				bot.send_message(type_message.chat.id, news, parse_mode='html')
+				link_text = link[0]['href']
+				bot.send_message(type_message.chat.id, news + ' (' + link_text + ')', parse_mode='html')
 				i += 1
 	except Exception as e:
 		bot.send_message(type_message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
@@ -912,6 +914,7 @@ def news_words(message, text_news):
 		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Парсинг новостей по ключевым словам] ' + str(e))
 
 
+# получение ключевых слов для поиска новостей
 def get_word_news(message):
 	words = message.text
 	news_words(message, words)
@@ -1090,19 +1093,18 @@ def download_audio(message):
 
 		for i in os.listdir(place_download):
 			if fnmatch.fnmatch(i, '*.mp3'):
-				global audio_name
-				audio_name = i
-				break
+				audio = open(f'{i}', 'rb')
+				bot.send_audio(message.chat.id, audio)
 
-		audio = open(f'{audio_name}', 'rb')
-		bot.send_audio(message.chat.id, audio)
 		add_message(message, message.text)
 	except Exception as e:
 		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Отправка аудио с YouTube] ' + str(e))
 
 	try:
-		os.remove(audio_name)
+		for i in os.listdir(place_download):
+			if fnmatch.fnmatch(i, '*.mp3'):
+				os.remove(i)
 	except:
 		pass
 

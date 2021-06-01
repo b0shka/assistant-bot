@@ -1,4 +1,4 @@
-token = '1624038657:AAGueinHVncw94iUfYHdki7JnPdy5GQ3fJE'
+token = 'token'
 
 email = 'email'
 password = 'password'
