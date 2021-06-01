@@ -1,4 +1,5 @@
 token = 'token'
 
-email = 'email'
-password = 'password'
+user_email = 'email'
+user_password = 'password'
+user_id = 1

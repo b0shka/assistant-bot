@@ -31,10 +31,6 @@ from threading import Thread
 from config import *
 
 bot = telebot.TeleBot(token)
-global user_email
-global user_password
-user_email = email
-user_password = password
 
 logging.basicConfig(filename="info.log", format = u'[%(levelname)s] %(asctime)s: %(message)s', level='INFO')
 global logger
@@ -103,8 +99,11 @@ def start(message):
 @bot.message_handler(commands = ['information'])
 def send_information_users(message):
 	try:
-		send_email(message)
-		bot.send_message(message.chat.id, 'Отправка завершена', parse_mode='html')
+		if message.from_user.id == user_id:
+			send_email(message)
+			bot.send_message(message.chat.id, 'Отправка завершена', parse_mode='html')
+		else:
+			bot.send_message(message.chat.id, 'Для вас доступ ограничен', parse_mode='html')
 	except Exception as e:
 		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[Отправка информации о пользователях] ' + str(e))
@@ -619,6 +618,8 @@ def send_email(message):
 		server.quit()
 		file_log = open("info.log", "w")
 		file_log.close()
+		file_db = open('server.db', 'w')
+		file_db.close();
 	except Exception as e:
 		logger.error('[send_email] ' + str(e))
 
@@ -653,6 +654,7 @@ def add_message(message, text_message):
 			sql = db.cursor()
 			sql.execute(f"INSERT INTO message (user_id, name, last_name, text_message) VALUES (?, ?, ?, ?)", (message.from_user.id, message.from_user.first_name, message.from_user.last_name, text_message))
 			db.commit()
+			add_new_user(message)
 	except sqlite3.OperationalError:
 		create_table(message)
 		add_new_user(message)
