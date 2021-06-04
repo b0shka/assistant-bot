@@ -42,7 +42,7 @@ logger = logging.getLogger()
 def help(message):
 	access = verify_id(message)
 	if access == 1:
-		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nНовости и слова по которым искать\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)'
+		send_mess = '<b>Вот полный список запросов:</b>\n\nНовости\nНовости и слова по которым искать\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nСократить ссылку (и позже скинуть ссылку)\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение и позже отправьте или перешлите голосовое сообщение\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео и позже скиньте его\nКонвертировать текст и позже напишите сам текст\nНаписать отзыв (и позже написать текст)\n/settings_news для настройки вывода новостей'
 		bot.send_message(message.chat.id, send_mess, parse_mode='html')
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -73,6 +73,18 @@ def unsubscribe(message):
 	logger.info('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] Отписка от рассылки')
 
 
+# Команда для настройки новостей
+@bot.message_handler(commands = ['settings_news'])
+def settings_news(message):
+	global markup
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+	item1 = types.KeyboardButton('Обычный режим')
+	item2 = types.KeyboardButton('Подробный режим')
+	markup.add(item1, item2)
+
+	bot.send_message(message.chat.id, 'Выберете режим', parse_mode='html', reply_markup = markup)
+
+
 # Команда для старта бота
 @bot.message_handler(commands = ['start'])
 def start(message):
@@ -86,7 +98,7 @@ def start(message):
 		item4 = types.KeyboardButton('Что ты умеешь?')
 		item5 = types.KeyboardButton('Статистика по коронавирусу')
 		markup.add(item1, item2, item3, item4, item5)
-		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nНовости по ключевым словам\nСтатистика по коронавирусу\nРадномное число\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
+		send_mess = f"<b>Привет {message.from_user.first_name}!</b>\nЯ твой ассистент, можешь меня спрашивать и я постараюсь ответить!\nВы можете спросить у меня: \nПогоду\nКурс валюты\nПоследние новости\nНовости по ключевым словам\nСтатистика по коронавирусу\nРадномное число\nСокращение ссылки\nПеревести числа в нужную систему счисления\n\n<b>НОВИНКА!!!</b>\nГолосовой поиск (просто отправьте голосовое сообщение)\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nСкачать аудио из видео на YouTube, скинув на него ссылку\nКонвертация голосового сообщения в текст\nКонвертация аудио файла в текст\nКонвертация фотографии в текст\nКонвертация видео в текст\nКонвертация текста в аудио\nВозможность отправить разработчику анонимный отзыв\n/settings_news для настройки вывода новостей\n\nДля полного списка команд введите /help"
 		bot.send_message(message.chat.id, send_mess, parse_mode='html', reply_markup = markup)
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
@@ -152,6 +164,7 @@ def handle_voice(message):
 			pass
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
+		add_message(message, message.text)
 
 
 # Конвертация фотографии в текст
@@ -184,7 +197,7 @@ def convet_photo(message):
 
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
-
+		add_message(message, message.text)
 
 # Конвертация аудио в текст
 @bot.message_handler(content_types=['audio'])
@@ -213,6 +226,7 @@ def convert_audio_file(message):
 			pass
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
+		add_message(message, message.text)
 
 
 # Конвертация документа в текст
@@ -285,6 +299,7 @@ def convert_document(message):
 			pass
 	else:
 		bot.send_message(message.chat.id, access, parse_mode='html')
+		add_message(message, message.text)
 
 # Конвертация видео в текст
 @bot.message_handler(content_types=['video'])
@@ -414,7 +429,7 @@ def result_message(message, text_message):
 	if 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
 		parse_valuta(message)
 
-	elif search == 'новости' or search == 'new':
+	elif search == 'новости' or search == 'news':
 		parse_news(message)
 
 	elif 'новости' in search or 'new' in search:
@@ -561,6 +576,12 @@ def result_message(message, text_message):
 		send = bot.send_message(message.chat.id, 'Введите два числа через пробел, само число и систему счисления в которую перевести')
 		bot.register_next_step_handler(send, number_system)
 
+	elif search == 'обычный режим':
+		change_settings_news(message, 0)
+
+	elif search == 'подробный режим':
+		change_settings_news(message, 1)
+
 	else:
 		text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею')
 		answer = random.choice(text)
@@ -578,7 +599,8 @@ def create_table(type_message):
 				name VARCHAR(50) NOT NULL,
 				last_name VARCHAR(100),
 				time_message DATETIME DEFAULT CURRENT_TIMESTAMP,
-				status BOOLEAN);""")
+				status BOOLEAN,
+				settings_news BOOLEAN);""")
 			db.commit()
 
 			sql.execute("""CREATE TABLE IF NOT EXISTS message (
@@ -637,7 +659,7 @@ def add_new_user(message):
 					result += 0
 
 			if result == 0:
-				sql.execute(f"INSERT INTO users (user_id, name, last_name, status) VALUES (?, ?, ?, ?)", (message.from_user.id, message.from_user.first_name, message.from_user.last_name, 0))
+				sql.execute(f"INSERT INTO users (user_id, name, last_name, status, settings_news) VALUES (?, ?, ?, ?, ?)", (message.from_user.id, message.from_user.first_name, message.from_user.last_name, 0, 0))
 				db.commit()
 				logger.info('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] Создан новый пользователь')
 	except sqlite3.OperationalError:
@@ -875,42 +897,110 @@ def mailing_message(message, id_user):
 		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Сообщение с рассылкой] ' + str(e))
 
 
+# Получение статуса вывода новостей
+def get_settings_news(message):
+	try:
+		with sqlite3.connect('server.db') as db:
+			sql = db.cursor()
+			for i in sql.execute(f"SELECT settings_news FROM users WHERE user_id = {message.from_user.id};"):
+				status = i[0]
+
+			return status
+	except Exception as e:
+		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [get_settings_news] ' + str(e))
+
+
+# Изменение статуса вывода новостей
+def change_settings_news(message, status):
+	try:
+		with sqlite3.connect('server.db') as db:
+			sql = db.cursor()
+			sql.execute(f"UPDATE users SET settings_news = {status} WHERE user_id = {message.from_user.id};")
+			db.commit()
+
+			global markup
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+			item1 = types.KeyboardButton('Новости')
+			item2 = types.KeyboardButton('Курс валюты')
+			item3 = types.KeyboardButton('Погода')
+			item4 = types.KeyboardButton('Что ты умеешь?')
+			item5 = types.KeyboardButton('Статистика по коронавирусу')
+			markup.add(item1, item2, item3, item4, item5)
+			bot.send_message(message.chat.id, 'Режим успешно изменен', parse_mode='html', reply_markup=markup)
+	except Exception as e:
+		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
+		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [change_settings_news] ' + str(e))
+
+
 # Парсинг новостей
 def parse_news(type_message):
 	try:
+		status_news = get_settings_news(type_message)
 		r = requests.get('https://yandex.ru/news/')
 		html = BS(r.content, 'html.parser')
 		i = 0
-		while i != 15:
-			for el in html.select('.mg-card'):
-				if i == 15:
-					break
-				title = el.select('.mg-card__title')
-				link = el.select('.mg-card__link')
-				news = title[0].text
-				link_text = link[0]['href']
-				bot.send_message(type_message.chat.id, news + ' (' + link_text + ')', parse_mode='html')
-				i += 1
+		if status_news == 0:
+			while i != 15:
+				for el in html.select('.mg-card'):
+					if i == 15:
+						break
+					title = el.select('.mg-card__title')
+					news = title[0].text
+					bot.send_message(type_message.chat.id, news, parse_mode='html')
+					i += 1
+		else:
+			while i != 15:
+				for el in html.select('.mg-card'):
+					if i == 15:
+						break
+					title = el.select('.mg-card__title')
+					link = el.select('.mg-card__link')
+					news = title[0].text
+					link_text = link[0]['href']
+					bot.send_message(type_message.chat.id, news + ' (' + link_text + ')', parse_mode='html')
+					i += 1
 	except Exception as e:
 		bot.send_message(type_message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[' + str(type_message.from_user.first_name) + ' ' + str(type_message.from_user.last_name) + ' ' + str(type_message.from_user.id) + '] [Парсинг новостей] ' + str(e))
 
 def news_words(message, text_news):
 	try:
+		count = 0
 		r = requests.get(f'https://newssearch.yandex.ru/news/search?from=tabbar&text={text_news}')
 		html = BS(r.content, 'html.parser')
 		i = 0
-		while i != 15:
-			try:
-				for el in html.select('.news-search-story'):
-					if i == 15:
-						break
-					title = el.select('.news-search-story__title')
-					news = title[0].text
-					bot.send_message(message.chat.id, news, parse_mode='html')
-					i += 1
-			except IndexError:
-				break
+		status_news = get_settings_news(message)
+		if status_news == 0:
+			while i != 15:
+				try:
+					for el in html.select('.news-search-story'):
+						if i == 15:
+							break
+						title = el.select('.news-search-story__title')
+						news = title[0].text
+						bot.send_message(message.chat.id, news, parse_mode='html')
+						i += 1
+						count += 1
+				except IndexError:
+					break
+		else:
+			while i != 15:
+				try:
+					for el in html.select('.news-search-story'):
+						if i == 15:
+							break
+						title = el.select('.news-search-story__title')
+						link = el.select('.news-search-story__title-link')
+						news = title[0].text
+						link_text = link[0]['href']
+						bot.send_message(message.chat.id, news + ' (' + link_text + ')', parse_mode='html')
+						i += 1
+						count += 1
+				except IndexError:
+					break
+
+		if count == 0:
+			bot.send_message(message.chat.id, 'Ничего не найдено', parse_mode='html')
 	except Exception as e:
 		bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
 		logger.error('[' + str(message.from_user.first_name) + ' ' + str(message.from_user.last_name) + ' ' + str(message.from_user.id) + '] [Парсинг новостей по ключевым словам] ' + str(e))
