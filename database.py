@@ -1,6 +1,5 @@
 import pymysql.cursors
 from config import *
-from main import logger
 
 db = pymysql.connect(host=host,
 					port = 3306,

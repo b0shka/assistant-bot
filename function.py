@@ -1,8 +1,21 @@
 import requests
-from telebot import types
+import youtube_dl
+import os
+import fnmatch
+import speech_recognition as sr
+import subprocess
+import smtplib
+import re
+import random
+import pytesseract
+from PIL import Image
 from bs4 import BeautifulSoup as BS
-from database import logger, get_settings_news
-from main import bot
+from gtts import gTTS
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from database import get_settings_news, add_message
+from config import bot, logger, user_email, user_password
 
 
 # Проверка id на блокировку
@@ -12,62 +25,6 @@ def verify_id(check_id):
         return 'Для вас доступ ограничен'
     else:
         return 1
-
-# Получение результата поиска
-def result_message(search, id, first_name, last_name):
-    if 'погода' in search or 'weather' in search:
-        parse_weather(id, first_name, last_name)
-
-    elif 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
-        parse_rate(id, first_name, last_name)
-
-    elif 'новости' in search or'news' in search:
-        text_news = search.split(' ')
-        if 'новости' in search:
-            text_news = text_news[text_news.index('новости')+1:]
-        else:
-            text_news = text_news[text_news.index('news')+1:]
-
-        if len(text_news) > 0:
-            text_news = ' '.join(text_news)
-            parse_news_words(id, first_name, last_name, text_news)
-        else:
-            parse_news(id, first_name, last_name)
-
-    elif 'статистика' in search or 'коронавирус' in search or 'covid' in search:
-            parse_stat_covid(id, first_name, last_name)
-
-    elif 'что ты' in search or 'умеешь' in search:
-        markup_inline = types.InlineKeyboardMarkup()
-        item_1 = types.InlineKeyboardButton(text = 'Погода', callback_data = 'weather')
-        item_2 = types.InlineKeyboardButton(text = 'Курс валюты', callback_data = 'valuta')
-        item_3 = types.InlineKeyboardButton(text = 'Новости', callback_data = 'news')
-        item_4 = types.InlineKeyboardButton(text = 'Коронавирус', callback_data = 'virus')
-        item_5 = types.InlineKeyboardButton(text = 'Да или нет', callback_data = 'yes_or_not')
-        item_6 = types.InlineKeyboardButton(text = '1 или 2', callback_data = 'one_or_two')
-        item_7 = types.InlineKeyboardButton(text = 'Любое число', callback_data = 'random_number')
-        item_8 = types.InlineKeyboardButton(text = 'Что лучше?', callback_data = 'what_best')
-        item_9 = types.InlineKeyboardButton(text = 'Сократить ссылку', callback_data = 'small_link')
-        item_10 = types.InlineKeyboardButton(text = 'Системы счисления', callback_data = 'system_number')
-        item_11 = types.InlineKeyboardButton(text = 'Новости по ключевым словам', callback_data='news_word')
-        #item_12 = types.InlineKeyboardButton(text = 'Скачать видео с Youtube', callback_data = 'click_download_video')
-        item_12 = types.InlineKeyboardButton(text = 'Скачать аудио с Youtube', callback_data = 'click_download_audio')
-        item_13 = types.InlineKeyboardButton(text = 'Конвертация голосового сообщения с текст', callback_data = 'convert_audio_to_text')
-        item_14 = types.InlineKeyboardButton(text = 'Конвертация теста в аудио', callback_data = 'convert_text_to_audio')
-        item_15 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
-        item_16 = types.InlineKeyboardButton(text = 'Конвертировать фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
-        #item_19 = types.InlineKeyboardButton(text = 'Получить текстовую версию видео на Youtube', callback_data = 'convert_video_youtube_to_text')
-
-        markup_inline.add(item_1, item_2, item_3)
-        markup_inline.add(item_4, item_5, item_6)
-        markup_inline.add(item_7, item_8,item_9)
-        markup_inline.add(item_10, item_11)
-        markup_inline.add(item_12, item_13)
-        markup_inline.add(item_14, item_15)
-        markup_inline.add(item_16)
-        #markup_inline.add(item_19)
-        bot.send_message(id, 'Вот что я умею\nДля полного списка команд введите /help', reply_markup = markup_inline)
-
 
 # Парсинг погоды
 def parse_weather(id, first_name, last_name):
@@ -132,8 +89,12 @@ def parse_news(id, first_name, last_name):
 
 
 # Парсинг новостей по ключевым словам
-def parse_news_words(id, first_name, last_name, text_news):
+def parse_news_words(message, id, first_name, last_name, text_news=None):
     try:
+        if text_news == None:
+            text_news = message.text
+            add_message(f'[Новости по ключевым словам] {text_news}', id, first_name, last_name)
+
         status_news = get_settings_news(id, first_name, last_name)
         r = requests.get(f'https://newssearch.yandex.ru/news/search?from=tabbar&text={text_news}')
         html = BS(r.content, 'html.parser')
@@ -206,3 +167,408 @@ def parse_stat_covid(id, first_name, last_name):
     except Exception as error:
         bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
         logger.error(f'[{first_name} {last_name} {id}] [Парсинг статистики по коронавирусу] {error}')
+
+
+# Скачивание аудио
+def downloading_audio(id, first_name, last_name, url):
+    try:
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+    except Exception as error:
+        bot.send_message(message.chat.id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Скачивание аудио с YouTube] {error}')
+
+# Скачивание и отправка аудио
+def download_audio(message, id, first_name, last_name):
+    try:
+        url = message.text
+        bot.send_message(id, 'Скачивание началось', parse_mode='html')
+
+        downloading_audio(id, first_name, last_name, url)
+
+        bot.send_message(id, 'Отправка', parse_mode='html')
+
+        for i in os.listdir(os.getcwd()):
+            if fnmatch.fnmatch(i, '*.mp3'):
+                bot.send_audio(id, open(i, 'rb'), parse_mode='html')
+
+        add_message(url, id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Отправка аудио с YouTube] {error}')
+
+    try:
+        for i in os.listdir(os.getcwd()):
+            if fnmatch.fnmatch(i, '*.mp3'):
+                os.remove(i)
+    except:
+        pass
+
+
+# Отправка отзыва пользователем
+def answer_user(message, id, first_name, last_name):
+    # https://accounts.google.com/DisplayUnlockCaptcha
+    try:
+        msg = MIMEMultipart()
+        msg['Subject'] = 'Отзыв'
+        body = message.text
+        msg.attach(MIMEText(body, 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(user_email, user_password)
+        server.sendmail(user_email, user_email, msg.as_string())
+        server.quit()
+        bot.send_message(id, 'Сообщение отправленно, спасибо большое за отзыв!', parse_mode='html')
+
+        logger.info(f'[{first_name} {last_name} {id}] [Отправка отзыва]')
+        add_message(f'[Отзыв] {message.text}', id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера ', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Отправка отзыва] {error}')
+
+
+# Рандомное число
+def number_random(message, id, first_name, last_name):
+    try:
+        numbers = re.findall('(\d+)', message.text)
+
+        if len(numbers) < 2:
+            bot.send_message(id, 'Вы ввели не все числа', parse_mode='html')
+        elif len(numbers) == 2:
+            if int(numbers[1]) > int(numbers[0]):
+                bot.send_message(id, random.randint(int(numbers[0]), int(numbers[1])), parse_mode='html')
+            else:
+                bot.send_message(id, random.randint(int(numbers[1]), int(numbers[0])), parse_mode='html')
+
+            add_message(message.text, id, first_name, last_name)
+        elif len(numbers) == 3:
+            if int(numbers[1]) > int(numbers[0]):
+                bot.send_message(id, random.randrange(int(numbers[0]), int(numbers[1]), int(numbers[2])), parse_mode='html')
+            else:
+                bot.send_message(id, random.randrange(int(numbers[1]), int(numbers[0]), int(numbers[2])), parse_mode='html')
+        else:
+            bot.send_message(id, 'Ошибка в записи', parse_mode='html')
+
+        add_message(message.text, id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Рандомное число] {error}')
+
+
+# Парсинг населения мира
+def parse_population(id, first_name, last_name):
+    pass
+
+
+# Перевод в систему счисления
+def number_system(message, id, first_name, last_name):
+    try:
+        search = message.text.split(' ')
+        if len(search) < 2:
+            bot.send_message(id, 'Вы ввели не все числа', parse_mode='html')
+        elif len(search) == 2:
+            numbers_more_nine = {10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
+            number = ''
+
+            if int(search[1]) > 16:
+                bot.send_message(id, 'Вы ввели слишкон большую систему счисления (max=16)', parse_mode='html')
+            else:
+                while int(search[0]) > 0:
+                    x = int(search[0]) % int(search[1])
+                    if x > 9:
+                        number += numbers_more_nine[x]
+                    else:
+                        number += str(x)
+
+                    search[0] = int(search[0]) // int(search[1])
+
+                bot.send_message(id, number[::-1], parse_mode='html')
+        else:
+            bot.send_message(id, 'Ошибка в записи', parse_mode='html')
+
+        add_message(message.text, id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Системы счисления] {error}')
+
+
+# Выбор что лучше
+def what_the_best(message, id, first_name, last_name):
+    try:
+        choice_text = message.text.split(' ')
+        if 'лучше' in choice_text:
+            choice_text = choice_text[choice_text.index('лучше')+1:]
+
+        if len(choice_text) == 3:
+            bot.send_message(id, random.choice((choice_text[0], choice_text[2])), parse_mode='html')
+        elif len(choice_text) == 2:
+            bot.send_message(id, random.choice(choice_text), parse_mode='html')
+        else:
+            bot.send_message(id, 'Ошибка в записи', parse_mode='html')
+
+        add_message(message.text, id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Что лучше] {error}')
+
+
+# Конвертация голосового сообщения в текст
+def convert_voice_to_text(message, id, first_name, last_name, mode):
+    try:
+        file_info = bot.get_file(message.voice.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+
+        with open("audio.ogg", 'wb') as f:
+            f.write(downloaded_file)
+
+        convert = subprocess.run(['ffmpeg', '-i', 'audio.ogg', 'audio.wav', '-y'])
+
+        r = sr.Recognizer()
+        with sr.AudioFile('audio.wav') as source:
+            text_from_voice = r.recognize_google(r.listen(source), language="ru_RU").lower()
+
+        add_message(f'[Голосовое] {text_from_voice}', id, first_name, last_name)
+
+        if mode == 'convert_voice':
+            bot.send_message(id, text_from_voice, parse_mode='html')
+        elif mode == 'voice_search':
+            return text_from_voice
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера или ваше голосовое сообщение пустое', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование аудио в текст] {error}')
+
+    try:
+        os.remove('audio.ogg')
+        os.remove('audio.wav')
+    except:
+        pass
+
+
+# Конвертация текста в голосовое сообщение
+def convert_text_to_voice(message, id, first_name, last_name):
+    try:
+        text_for_convert = message.text
+
+        bot.send_message(id, 'Конвертация началась', parse_mode='html')
+        convert_text = gTTS(text=text_for_convert, lang='ru', slow=False)
+        convert_text.save("audio.mp3")
+
+        with open("audio.mp3", 'rb') as audio:
+            bot.send_audio(id, audio, parse_mode='html')
+
+        add_message(f'[Конвертация текста] {text_for_convert}', id, first_name, last_name)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование текста в аудио] {error}')
+
+    try:
+        os.remove('audio.mp3')
+    except:
+        pass
+
+
+# Скачивание и конвертация фотографии в текст
+def convert_photo_to_text(message, id, first_name, last_name):
+    try:
+        bot.send_message(id, 'Конвертация началась', parse_mode='html')
+
+        file_info = bot.get_file(message.photo[-1].file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        convert_name_file = 'img.jpg'
+        with open(convert_name_file, 'wb') as f:
+            f.write(downloaded_file)
+
+        return converting_photo(convert_name_file)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера или фотографию неудается распознать', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование фото в текст] {error}')
+
+    try:
+        os.remove(convert_name_file)
+    except:
+        pass
+
+def converting_photo(convert_name_file):
+    img = Image.open(convert_name_file)
+    result_text = pytesseract.image_to_string(img, lang='rus')
+
+    return result_text
+
+# Конвертация аудио в текст
+def convert_audio_to_text(message, id, first_name, last_name):
+    try:
+        bot.send_message(id, 'Конвертация началась', parse_mode='html')
+
+        file_info = bot.get_file(message.audio.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        convert_name_file = 'audio.ogg'
+
+        with open(convert_name_file, 'wb') as f:
+            f.write(downloaded_file)
+
+        converting_audio(convert_name_file)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера или файл неудается распознать', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование аудио в текст] {error}')
+
+    try:
+        os.remove(convert_name_file)
+        os.remove('audio.wav')
+    except:
+        pass
+
+def converting_audio(convert_name_file):
+    convert = subprocess.run(['ffmpeg', '-i', convert_name_file, 'audio.wav', '-y'])
+
+    r = sr.Recognizer()
+    result_convert = ''
+    count_long_pause = 0
+    with sr.AudioFile('audio.wav') as source:
+        while True:
+            try:
+                audio = r.listen(source)
+                if len(result_convert + str(r.recognize_google(audio, language="ru_RU").lower())) < 4096:
+                    result_convert += str(r.recognize_google(audio, language="ru_RU").lower())
+                else:
+                    bot.send_message(id, result_convert, parse_mode='html')
+                    result_convert = str(r.recognize_google(audio, language="ru_RU").lower())
+            except sr.UnknownValueError:
+                count_long_pause += 1
+                if count_long_pause > 10:
+                    break
+
+        bot.send_message(id, result_convert, parse_mode='html')
+        add_message(f'[Конвертация аудио файла] {result_convert}', id, first_name, last_name)
+
+
+# Конвертация видео в текст
+def convert_video_to_text(message, id, first_name, last_name):
+    try:
+        bot.send_message(message.chat.id, 'Конвертация началась', parse_mode='html')
+
+        file_info = bot.get_file(message.video.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        with open("video.mp4", 'wb') as f:
+            f.write(downloaded_file)
+
+        audio = VideoFileClip('video.mp4').audio
+        audio.write_audiofile('audio.mp3')
+        convert_name_file = 'audio.mp3'
+
+        converting_audio(convert_name_file)
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера или видео неудается распознать', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование видео в текст] {error}')
+
+    try:
+        os.remove('video.mp4')
+        os.remove(convert_name_file)
+        os.remove('audio.wav')
+    except:
+        pass
+
+
+# Конвертирование документа в текст
+def convert_document_to_text(message, id, first_name, last_name):
+    try:
+        audio_name = ['ogg', 'opus', 'mp3', 'wav', 'aac']
+        photo_name = ['jpeg', 'jpg', 'png']
+        video_name = ['mp4', 'avi', 'mkv']
+
+        bot.send_message(id, 'Конвертация началась', parse_mode='html')
+
+        file_name = message.document.file_name.split('.')
+
+        if file_name[-1] in photo_name:
+            file_info = bot.get_file(message.document.file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            convert_name_file = 'img.' + str(file_name[-1])
+
+            with open(convert_name_file, 'wb') as f:
+                f.write(downloaded_file)
+
+            result_convert_photo = converting_photo(convert_name_file)
+
+            bot.send_message(id, result_convert_photo, parse_mode='html')
+            add_message(f'[Конвертация фото в текст] {result_convert_photo}', id, first_name, last_name)
+
+        elif file_name[-1] in audio_name:
+            file_info = bot.get_file(message.document.file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            convert_name_file = 'audio.ogg'
+
+            with open(convert_name_file, 'wb') as f:
+                f.write(downloaded_file)
+
+            converting_audio(convert_name_file)
+
+            try:
+                os.remove('audio.wav')
+            except:
+                pass
+
+        elif file_name[-1] in video_name:
+            file_info = bot.get_file(message.document.file_id)
+            downloaded_file = bot.download_file(file_info.file_path)
+            convert_video_file = 'video.' + str(file_name[-1])
+
+            with open(convert_video_file, 'wb') as f:
+                f.write(downloaded_file)
+
+            audio = VideoFileClip(convert_video_file).audio
+            audio.write_audiofile('audio.mp3')
+            convert_name_file = 'audio.mp3'
+
+            converting_audio(convert_name_file)
+
+        try:
+            os.remove(convert_video_file)
+            os.remove('audio.wav')
+        except:
+            pass
+    except Exception as error:
+        bot.send_message(id, 'Ошибка на стороне сервера или файл неудается распознать', parse_mode='html')
+        logger.error(f'[{first_name} {last_name} {id}] [Конвертирование документа в текст] {error}')
+
+    try:
+        os.remove(convert_name_file)
+    except:
+        pass
+
+
+# Отправка информации на почту
+def send_information_to_email(id):
+    try:
+        msg = MIMEMultipart()
+        msg['Subject'] = 'Данные'
+        body = 'Отправка log'
+        msg.attach(MIMEText(body, 'plain'))
+
+        try:
+            part = MIMEApplication(open('info/info.log', 'rb').read())
+            part.add_header('Content-Disposition', 'attachment', filename = 'info.log')
+            msg.attach(part)
+        except:
+            pass
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(user_email, user_password)
+        server.sendmail(user_email, user_email, msg.as_string())
+        server.quit()
+
+        with open("info/info.log", "w") as file_log:
+            file_log.close()
+
+        bot.send_message(id, 'Отправка завершена', parse_mode='html')
+    except Exception as error:
+        logger.error(f'[send_email] {error}')
