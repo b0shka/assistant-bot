@@ -1,8 +1,6 @@
-import random
-import re
-from telebot import types
-from config import bot, logger
 from function import *
+from database import get_settings_news, add_message, send_information_to_email
+from config import bot, logger, user_email, user_password
 
 id = None
 first_name = None
@@ -10,11 +8,11 @@ last_name = None
 
 
 # Получение результата поиска
-def result_message(search, user_id, user_first_name, user_last_name, message):
+def result_message(search, message):
     global id, first_name, last_name
-    id = user_id
-    first_name = user_first_name
-    last_name = user_last_name
+    id = message.from_user.id
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
 
     if 'погода' in search or 'weather' in search:
         parse_weather(id, first_name, last_name)
@@ -64,7 +62,7 @@ def result_message(search, user_id, user_first_name, user_last_name, message):
         markup_inline.add(item_13)
         markup_inline.add(item_14)
         markup_inline.add(item_15)
-        bot.send_message(id, 'Вот что я умею\nДля полного списка команд введите /help', reply_markup = markup_inline)
+        bot.send_message(id, 'Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
 
     elif 'скачать аудио' in search or 'скачать музыку' in search or 'музык' in search:
         send = bot.send_message(id, 'Введите url')

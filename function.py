@@ -4,17 +4,13 @@ import os
 import fnmatch
 import speech_recognition as sr
 import subprocess
-import smtplib
 import re
 import random
 import pytesseract
 from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from database import get_settings_news, add_message
+from database import get_settings_news, add_message, send_information_to_email
 from config import bot, logger, user_email, user_password
 
 
@@ -308,9 +304,8 @@ def what_the_best(message, id, first_name, last_name):
         if 'лучше' in choice_text:
             choice_text = choice_text[choice_text.index('лучше')+1:]
 
-        if len(choice_text) == 3:
-            bot.send_message(id, random.choice((choice_text[0], choice_text[2])), parse_mode='html')
-        elif len(choice_text) == 2:
+        if 'или' in choice_text:
+            choice_text = ''.join(choice_text).split('или')
             bot.send_message(id, random.choice(choice_text), parse_mode='html')
         else:
             bot.send_message(id, 'Ошибка в записи', parse_mode='html')
@@ -338,6 +333,12 @@ def convert_voice_to_text(message, id, first_name, last_name, mode):
 
         add_message(f'[Голосовое] {text_from_voice}', id, first_name, last_name)
 
+        try:
+            os.remove('audio.ogg')
+            os.remove('audio.wav')
+        except:
+            pass
+
         if mode == 'convert_voice':
             bot.send_message(id, text_from_voice, parse_mode='html')
         elif mode == 'voice_search':
@@ -345,12 +346,6 @@ def convert_voice_to_text(message, id, first_name, last_name, mode):
     except Exception as error:
         bot.send_message(id, 'Ошибка на стороне сервера или ваше голосовое сообщение пустое', parse_mode='html')
         logger.error(f'[{first_name} {last_name} {id}] [Конвертирование аудио в текст] {error}')
-
-    try:
-        os.remove('audio.ogg')
-        os.remove('audio.wav')
-    except:
-        pass
 
 
 # Конвертация текста в голосовое сообщение
@@ -387,15 +382,15 @@ def convert_photo_to_text(message, id, first_name, last_name):
         with open(convert_name_file, 'wb') as f:
             f.write(downloaded_file)
 
+        try:
+            os.remove(convert_name_file)
+        except:
+            pass
         return converting_photo(convert_name_file)
     except Exception as error:
         bot.send_message(id, 'Ошибка на стороне сервера или фотографию неудается распознать', parse_mode='html')
         logger.error(f'[{first_name} {last_name} {id}] [Конвертирование фото в текст] {error}')
 
-    try:
-        os.remove(convert_name_file)
-    except:
-        pass
 
 def converting_photo(convert_name_file):
     img = Image.open(convert_name_file)
@@ -543,32 +538,3 @@ def convert_document_to_text(message, id, first_name, last_name):
         os.remove(convert_name_file)
     except:
         pass
-
-
-# Отправка информации на почту
-def send_information_to_email(id):
-    try:
-        msg = MIMEMultipart()
-        msg['Subject'] = 'Данные'
-        body = 'Отправка log'
-        msg.attach(MIMEText(body, 'plain'))
-
-        try:
-            part = MIMEApplication(open('info/info.log', 'rb').read())
-            part.add_header('Content-Disposition', 'attachment', filename = 'info.log')
-            msg.attach(part)
-        except:
-            pass
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(user_email, user_password)
-        server.sendmail(user_email, user_email, msg.as_string())
-        server.quit()
-
-        with open("info/info.log", "w") as file_log:
-            file_log.close()
-
-        bot.send_message(id, 'Отправка завершена', parse_mode='html')
-    except Exception as error:
-        logger.error(f'[send_email] {error}')

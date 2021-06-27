@@ -1,0 +1,12 @@
+[ERROR][2021-06-27 12:49:13,036] send_information_to_email:178: [send_email] A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: chat not found
+[ERROR][2021-06-27 12:57:08,320] parse_weather:38: [Vanya None 1100858556] [Парсинг погоды] A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unsupported start tag "span" at byte offset 28
+[ERROR][2021-06-27 13:00:11,067] parse_weather:45: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[ERROR][2021-06-27 13:00:47,905] parse_weather:45: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[ERROR][2021-06-27 13:01:52,185] parse_weather:46: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[ERROR][2021-06-27 13:05:13,229] parse_weather:46: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+[ERROR][2021-06-27 13:47:28,238] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x81\\xD1\\x89\\xD0\\xBC...' for column 'text_message' at row 1")
+[ERROR][2021-06-27 15:32:41,702] what_the_best:316: [Vanya None 1100858556] [Что лучше] 'list' object has no attribute 'split'
+[ERROR][2021-06-27 15:32:41,791] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
+[ERROR][2021-06-27 15:33:58,636] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
+[ERROR][2021-06-27 15:33:58,715] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
+[ERROR][2021-06-27 15:34:06,320] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD0\\xBF\\xD0\\xBE\\xD0\\xB5...' for column 'text_message' at row 1")

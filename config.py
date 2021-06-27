@@ -13,5 +13,5 @@ user = os.environ['user']
 password = os.environ['password']
 db_name = os.environ['db_name']
 
-logging.basicConfig(filename="info/info.log", format = u'[%(levelname)s][%(asctime)s] (%(funcName)s:%(lineno)s): %(message)s', level='INFO')
+logging.basicConfig(filename="info/info.log", format = u'[%(levelname)s][%(asctime)s] %(funcName)s:%(lineno)s: %(message)s', level='INFO')
 logger = logging.getLogger()
