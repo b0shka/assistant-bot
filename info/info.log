@@ -1,12 +1,82 @@
-[ERROR][2021-06-27 12:49:13,036] send_information_to_email:178: [send_email] A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: chat not found
-[ERROR][2021-06-27 12:57:08,320] parse_weather:38: [Vanya None 1100858556] [Парсинг погоды] A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: can't parse entities: Unsupported start tag "span" at byte offset 28
-[ERROR][2021-06-27 13:00:11,067] parse_weather:45: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-[ERROR][2021-06-27 13:00:47,905] parse_weather:45: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-[ERROR][2021-06-27 13:01:52,185] parse_weather:46: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-[ERROR][2021-06-27 13:05:13,229] parse_weather:46: [Vanya None 1100858556] [Парсинг погоды] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-[ERROR][2021-06-27 13:47:28,238] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x81\\xD1\\x89\\xD0\\xBC...' for column 'text_message' at row 1")
-[ERROR][2021-06-27 15:32:41,702] what_the_best:316: [Vanya None 1100858556] [Что лучше] 'list' object has no attribute 'split'
-[ERROR][2021-06-27 15:32:41,791] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
-[ERROR][2021-06-27 15:33:58,636] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
-[ERROR][2021-06-27 15:33:58,715] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD1\\x87\\xD1\\x82\\xD0\\xBE...' for column 'text_message' at row 1")
-[ERROR][2021-06-27 15:34:06,320] add_message:82: [Vanya None 1100858556] [add_message] (1366, "Incorrect string value: '\\xD0\\xBF\\xD0\\xBE\\xD0\\xB5...' for column 'text_message' at row 1")
+[INFO][2021-06-27 23:45:46,307] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:45:46,686] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:45:46,687] start_polling:360: Start polling.
+[INFO][2021-06-27 23:45:47,599] create_table:37: Создание таблиц в БД
+[INFO][2021-06-27 23:45:48,149] add_new_user:55: [Vanya None 1100858556] Создан новый пользователь
+[INFO][2021-06-27 23:47:01,270] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:47:01,271] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:47:03,526] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:47:03,846] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:47:03,847] start_polling:360: Start polling.
+[ERROR][2021-06-27 23:47:05,088] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-14' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=NameError("name 'self' is not defined")>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 286, in process_update
+    return await self.callback_query_handlers.notify(update.callback_query)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/media/q/File/p/python/telegram/bot-aiogram/function.py", line 646, in callback
+    await self.parse_weather(message)
+NameError: name 'self' is not defined
+[INFO][2021-06-27 23:48:00,076] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:48:00,304] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:48:00,304] start_polling:360: Start polling.
+[INFO][2021-06-27 23:49:09,695] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:49:09,696] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:49:12,180] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:49:13,085] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:49:13,086] start_polling:360: Start polling.
+[INFO][2021-06-27 23:49:49,766] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:49:49,767] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:49:52,448] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:49:52,680] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:49:52,680] start_polling:360: Start polling.
+[INFO][2021-06-27 23:50:46,657] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:50:46,658] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:50:49,025] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:50:49,450] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:50:49,451] start_polling:360: Start polling.
+[INFO][2021-06-27 23:51:13,683] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:51:13,684] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:51:16,487] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:51:16,719] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:51:16,720] start_polling:360: Start polling.
+[INFO][2021-06-27 23:54:23,853] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:54:23,854] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:54:26,267] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:54:26,504] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:54:26,505] start_polling:360: Start polling.
+[INFO][2021-06-27 23:54:48,708] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:54:48,709] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:57:57,586] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:57:57,805] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:57:57,806] start_polling:360: Start polling.
+[ERROR][2021-06-27 23:57:59,436] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-14' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=AttributeError("'CallbackQuery' object has no attribute 'nessage'")>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 286, in process_update
+    return await self.callback_query_handlers.notify(update.callback_query)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/media/q/File/p/python/telegram/bot-aiogram/function.py", line 702, in callback
+    await call.nessage.answer('Отправьте фото, аудио файл или видео')
+AttributeError: 'CallbackQuery' object has no attribute 'nessage'
+[INFO][2021-06-27 23:58:13,177] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:58:13,178] start_polling:329: Goodbye!
+[INFO][2021-06-27 23:58:15,564] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-27 23:58:15,803] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-27 23:58:15,804] start_polling:360: Start polling.
+[INFO][2021-06-27 23:58:24,823] stop_polling:435: Stop polling...
+[WARNING][2021-06-27 23:58:24,824] start_polling:329: Goodbye!
