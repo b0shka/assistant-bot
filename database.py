@@ -1,12 +1,9 @@
 import time
 import os
 import sqlite3
-import smtplib
 import requests
 from bs4 import BeautifulSoup as BS
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
+from aiogram import types
 from config import logger
 
 class Database:
@@ -82,88 +79,72 @@ class Database:
 	        logger.error(f'[{first_name} {last_name} {id}] [get_settings_news] {error}')
 
 
-	# Подписка на рассылку
-	def subscribe_to_the_mailing(self, id, first_name, last_name):
+	# Изменение настройки вывода новостей
+	async def change_settings_news(self, message, mode):
 		try:
-			self.sql.execute(f"SELECT status FROM users WHERE user_id={id};")
+			if mode == 'обычный режим':
+				self.sql.execute(f"UPDATE users SET settings_news=0 WHERE user_id={message.from_user.id};")
+			elif mode == 'подробный режим':
+				self.sql.execute(f"UPDATE users SET settings_news=1 WHERE user_id={message.from_user.id};")
+
+			self.db.commit()
+
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+			item1 = types.KeyboardButton('Новости')
+			item2 = types.KeyboardButton('Курс валюты')
+			item3 = types.KeyboardButton('Погода')
+			item4 = types.KeyboardButton('Что ты умеешь?')
+			item5 = types.KeyboardButton('Статистика по коронавирусу')
+			markup.add(item1, item2, item3, item4, item5)
+			await message.answer('Режим изменен', reply_markup=markup)
+		except Exception as error:
+			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [change_settings_news] {error}')
+
+
+	# Подписка на рассылку
+	async def subscribe_to_the_mailing(self, message):
+		try:
+			self.sql.execute(f"SELECT status FROM users WHERE user_id={message.from_user.id};")
 			status_mailing = self.sql.fetchone()
 
-			if status_mailing['status'] == 1:
-				bot.send_message(id, 'Вы уже подписаны', parse_mode='html')
+			if status_mailing[0] == 1:
+				await message.answer('Вы уже подписаны')
 			else:
-				self.sql.execute(f"UPDATE users SET status=1 WHERE user_id={id}")#
-				db.commit()
-				bot.send_message(id, 'Вы успешно подписаны', parse_mode='html')
+				self.sql.execute(f"UPDATE users SET status=1 WHERE user_id={message.from_user.id}")#
+				self.db.commit()
+				await message.answer('Вы успешно подписаны')
 		except sqlite3.OperationalError:
-			create_table()
-			add_new_user(id, first_name, last_name)
-			subscribe(id, first_name, last_name)
+			self.create_table()
+			self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+			await self.subscribe_to_the_mailing(message)
 		except Exception as error:
-			bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
-			logger.error(f'[{first_name} {last_name} {id}] [Подписка на рассылку] {error}')
-
+			await message.answer('Ошибка на стороне сервера')
+			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Подписка на рассылку] {error}')
 
 
 	# Отписка от рассылки
-	def unsubscribe_from_the_mailing(self, id, first_name, last_name):
+	async def unsubscribe_from_the_mailing(self, message):
 		try:
-			self.sql.execute(f"SELECT status FROM users WHERE user_id={id};")
+			self.sql.execute(f"SELECT status FROM users WHERE user_id={message.from_user.id};")
 			status_mailing = self.sql.fetchone()
 
-			if status_mailing['status'] == 0:
-				bot.send_message(id, 'Вы и не подписаны', parse_mode='html')
+			if status_mailing[0] == 0:
+				await message.answer('Вы и не подписаны')
 			else:
-				self.sql.execute(f"UPDATE users SET status=0 WHERE user_id={id}")#
-				db.commit()
-				bot.send_message(id, 'Вы успешно отписаны', parse_mode='html')
+				self.sql.execute(f"UPDATE users SET status=0 WHERE user_id={message.from_user.id}")#
+				self.db.commit()
+				await message.answer('Вы успешно отписаны')
 		except sqlite3.OperationalError:
-			create_table()
-			add_new_user(id, first_name, last_name)
-			subscribe(id, first_name, last_name)
+			self.create_table()
+			self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+			await self.unsubscribe_from_the_mailing(message)
 		except Exception as error:
 			bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
-			logger.error(f'[{first_name} {last_name} {id}] [Подписка на рассылку] {error}')
+			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Подписка на рассылку] {error}')
 
 
-	# Отправка рассылки по времени
-	def mailing_subscribe_users(self):
-		try:
-			while True:
-				if str(time.strftime("%H:%M:%S")) == str("12:49:10"):
-					self.sql.execute(f"SELECT user_id FROM users WHERE status=1;")
-					subscribe_users_list = self.sql.fetchall()
+	def get_subscribe_users(self):
+		self.sql.execute(f"SELECT user_id FROM users WHERE status=1;")
+		subscribe_users_list = self.sql.fetchall()
 
-					for i in subscribe_users_list:
-						print('hello')
-					send_information_to_email()
-		except Exception as error:
-			logger.error(f'[mailing_subscribe_users] {error}')
-
-
-	# Отправка информации на почту
-	def send_information_to_email(self):
-	    try:
-	        msg = MIMEMultipart()
-	        msg['Subject'] = 'Данные'
-	        body = 'Отправка log'
-	        msg.attach(MIMEText(body, 'plain'))
-
-	        try:
-	            part = MIMEApplication(open('info/info.log', 'rb').read())
-	            part.add_header('Content-Disposition', 'attachment', filename = 'info.log')
-	            msg.attach(part)
-	        except:
-	            pass
-
-	        server = smtplib.SMTP('smtp.gmail.com', 587)
-	        server.starttls()
-	        server.login(user_email, user_password)
-	        server.sendmail(user_email, user_email, msg.as_string())
-	        server.quit()
-
-	        with open("info/info.log", "w") as file_log:
-	            file_log.close()
-
-	        bot.send_message(id, 'Отправка завершена', parse_mode='html')
-	    except Exception as error:
-	        logger.error(f'[send_email] {error}')
+		return subscribe_users_list

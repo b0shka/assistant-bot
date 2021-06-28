@@ -1,15 +1,13 @@
-[INFO][2021-06-27 23:45:46,307] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:45:46,686] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:45:46,687] start_polling:360: Start polling.
-[INFO][2021-06-27 23:45:47,599] create_table:37: Создание таблиц в БД
-[INFO][2021-06-27 23:45:48,149] add_new_user:55: [Vanya None 1100858556] Создан новый пользователь
-[INFO][2021-06-27 23:47:01,270] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:47:01,271] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:47:03,526] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:47:03,846] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:47:03,847] start_polling:360: Start polling.
-[ERROR][2021-06-27 23:47:05,088] start_polling:323: Task exception was never retrieved
-future: <Task finished name='Task-14' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=NameError("name 'self' is not defined")>
+[INFO][2021-06-28 20:26:31,290] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:26:31,564] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:26:31,590] start_polling:360: Start polling.
+[INFO][2021-06-28 20:26:47,954] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:26:48,000] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:29:22,411] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:29:23,634] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:29:23,635] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:29:27,598] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-14' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=AttributeError("'Functions' object has no attribute 'mamailing_subscribe_users'")>
 Traceback (most recent call last):
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
@@ -17,48 +15,20 @@ Traceback (most recent call last):
     return await asyncio.gather(*tasks)
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
     response = await handler_obj.handler(*args, **partial_data)
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 286, in process_update
-    return await self.callback_query_handlers.notify(update.callback_query)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
     response = await handler_obj.handler(*args, **partial_data)
-  File "/media/q/File/p/python/telegram/bot-aiogram/function.py", line 646, in callback
-    await self.parse_weather(message)
-NameError: name 'self' is not defined
-[INFO][2021-06-27 23:48:00,076] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:48:00,304] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:48:00,304] start_polling:360: Start polling.
-[INFO][2021-06-27 23:49:09,695] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:49:09,696] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:49:12,180] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:49:13,085] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:49:13,086] start_polling:360: Start polling.
-[INFO][2021-06-27 23:49:49,766] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:49:49,767] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:49:52,448] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:49:52,680] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:49:52,680] start_polling:360: Start polling.
-[INFO][2021-06-27 23:50:46,657] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:50:46,658] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:50:49,025] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:50:49,450] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:50:49,451] start_polling:360: Start polling.
-[INFO][2021-06-27 23:51:13,683] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:51:13,684] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:51:16,487] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:51:16,719] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:51:16,720] start_polling:360: Start polling.
-[INFO][2021-06-27 23:54:23,853] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:54:23,854] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:54:26,267] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:54:26,504] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:54:26,505] start_polling:360: Start polling.
-[INFO][2021-06-27 23:54:48,708] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:54:48,709] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:57:57,586] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:57:57,805] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:57:57,806] start_polling:360: Start polling.
-[ERROR][2021-06-27 23:57:59,436] start_polling:323: Task exception was never retrieved
-future: <Task finished name='Task-14' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=AttributeError("'CallbackQuery' object has no attribute 'nessage'")>
+  File "./main.py", line 65, in subscribe
+    await func.mamailing_subscribe_users()
+AttributeError: 'Functions' object has no attribute 'mamailing_subscribe_users'
+[INFO][2021-06-28 20:29:31,974] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:29:31,974] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:29:46,981] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:29:47,210] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:29:47,211] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:29:47,608] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=AttributeError("'Functions' object has no attribute 'mamailing_subscribe_users'")>
 Traceback (most recent call last):
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
     for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
@@ -66,17 +36,151 @@ Traceback (most recent call last):
     return await asyncio.gather(*tasks)
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
     response = await handler_obj.handler(*args, **partial_data)
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 286, in process_update
-    return await self.callback_query_handlers.notify(update.callback_query)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
   File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
     response = await handler_obj.handler(*args, **partial_data)
-  File "/media/q/File/p/python/telegram/bot-aiogram/function.py", line 702, in callback
-    await call.nessage.answer('Отправьте фото, аудио файл или видео')
-AttributeError: 'CallbackQuery' object has no attribute 'nessage'
-[INFO][2021-06-27 23:58:13,177] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:58:13,178] start_polling:329: Goodbye!
-[INFO][2021-06-27 23:58:15,564] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-06-27 23:58:15,803] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-06-27 23:58:15,804] start_polling:360: Start polling.
-[INFO][2021-06-27 23:58:24,823] stop_polling:435: Stop polling...
-[WARNING][2021-06-27 23:58:24,824] start_polling:329: Goodbye!
+  File "./main.py", line 65, in subscribe
+    await func.mamailing_subscribe_users()
+AttributeError: 'Functions' object has no attribute 'mamailing_subscribe_users'
+[INFO][2021-06-28 20:30:07,434] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:30:07,435] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:30:15,976] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:30:16,297] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:30:16,298] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:30:16,767] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=AttributeError("'Functions' object has no attribute 'mamailing_subscribe_users'")>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "./main.py", line 65, in subscribe
+    await func.mamailing_subscribe_users()
+AttributeError: 'Functions' object has no attribute 'mamailing_subscribe_users'
+[INFO][2021-06-28 20:30:19,801] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:30:19,801] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:30:48,464] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:30:48,694] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:30:48,695] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:30:50,730] mailing_subscribe_users:614: [mailing_subscribe_users] name 'message' is not defined
+[INFO][2021-06-28 20:30:56,744] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:30:56,745] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:32:29,252] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:32:29,999] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:32:30,000] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:32:30,539] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=TypeError('mailing_subscribe_users() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "./main.py", line 65, in subscribe
+    await func.mailing_subscribe_users(message)
+TypeError: mailing_subscribe_users() takes 1 positional argument but 2 were given
+[INFO][2021-06-28 20:32:35,633] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:32:35,634] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:32:38,459] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:32:38,700] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:32:38,701] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:32:39,092] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=TypeError('mailing_subscribe_users() takes 1 positional argument but 2 were given')>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "./main.py", line 65, in subscribe
+    await func.mailing_subscribe_users(message)
+TypeError: mailing_subscribe_users() takes 1 positional argument but 2 were given
+[INFO][2021-06-28 20:32:42,730] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:32:42,731] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:33:03,235] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:33:03,466] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:33:03,467] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:33:10,747] message_mailig:599: [Vanya None 1100858556] [message_mailig] Chat not found
+[ERROR][2021-06-28 20:34:21,277] start_polling:328: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=KeyboardInterrupt()>
+Traceback (most recent call last):
+  File "uvloop/loop.pyx", line 467, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/utils/executor.py", line 323, in start_polling
+    loop.run_forever()
+  File "uvloop/loop.pyx", line 1370, in uvloop.loop.Loop.run_forever
+  File "uvloop/loop.pyx", line 550, in uvloop.loop.Loop._run
+  File "uvloop/loop.pyx", line 467, in uvloop.loop.Loop._on_idle
+  File "uvloop/cbhandles.pyx", line 83, in uvloop.loop.Handle._run
+  File "uvloop/cbhandles.pyx", line 63, in uvloop.loop.Handle._run
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "./main.py", line 65, in subscribe
+    await func.mailing_subscribe_users(message)
+  File "/media/q/File/p/python/telegram/bot-aiogram/functions.py", line 605, in mailing_subscribe_users
+    if str(time.strftime("%H:%M:%S")) == str("20:34:25"):
+KeyboardInterrupt
+[INFO][2021-06-28 20:34:21,286] stop_polling:435: Stop polling...
+[INFO][2021-06-28 20:34:24,025] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:34:24,291] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:34:24,292] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:34:25,775] mailing_subscribe_users:614: [mailing_subscribe_users] Chat not found
+[INFO][2021-06-28 20:43:37,871] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:43:38,106] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:43:38,106] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:44:00,607] mailing_subscribe_users:616: [mailing_subscribe_users] name 'message' is not defined
+[INFO][2021-06-28 20:46:06,679] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:46:06,680] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:46:18,152] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:46:18,405] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:46:18,406] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:46:18,885] start_polling:323: Task exception was never retrieved
+future: <Task finished name='Task-9' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=NameError("name 'asyncio' is not defined")>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
+    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
+    return await asyncio.gather(*tasks)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
+    return await self.message_handlers.notify(update.message)
+  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
+    response = await handler_obj.handler(*args, **partial_data)
+  File "./main.py", line 65, in subscribe
+    asyncio.create_task(func.mailing_subscribe_users(message))
+NameError: name 'asyncio' is not defined
+[INFO][2021-06-28 20:46:50,492] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:46:50,493] start_polling:329: Goodbye!
+[INFO][2021-06-28 20:47:00,598] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-06-28 20:47:00,839] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-06-28 20:47:00,840] start_polling:360: Start polling.
+[ERROR][2021-06-28 20:47:10,569] mailing_subscribe_users:616: [mailing_subscribe_users] name 'message' is not defined
+[INFO][2021-06-28 20:49:17,573] stop_polling:435: Stop polling...
+[WARNING][2021-06-28 20:49:17,573] start_polling:329: Goodbye!

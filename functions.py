@@ -5,118 +5,23 @@ import fnmatch
 import speech_recognition as sr
 import subprocess
 import re
+import time
 import random
 import pytesseract
+import smtplib
 from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
-from aiogram import types
-from config import logger, bot, dp
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from config import logger, bot, user_email, user_password
 from database import Database
 
 
-class Function:
+class Functions:
     def __init__(self):
         self.db = Database('server.db')
-
-    # Получение результата поиска
-    async def result_message(self, search, message):
-        if 'погода' in search or 'weather' in search:
-            await self.parse_weather(message)
-
-        elif 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
-            await self.parse_rate(message)
-
-        elif 'новости' in search or'news' in search:
-            text_news = search.split(' ')
-            if 'новости' in search:
-                text_news = text_news[text_news.index('новости')+1:]
-            else:
-                text_news = text_news[text_news.index('news')+1:]
-
-            if len(text_news) > 0:
-                text_news = ' '.join(text_news)
-                await self.parse_news_words(message, text_news)
-            else:
-                await self.parse_news(message)
-
-        elif 'статистика' in search or 'коронавирус' in search or 'covid' in search:
-            await self.parse_stat_covid(message)
-
-        elif 'что ты' in search or 'умеешь' in search:
-            markup_inline = types.InlineKeyboardMarkup()
-            item_1 = types.InlineKeyboardButton(text = 'Погода', callback_data = 'weather')
-            item_2 = types.InlineKeyboardButton(text = 'Курс валюты', callback_data = 'valuta')
-            item_3 = types.InlineKeyboardButton(text = 'Новости', callback_data = 'news')
-            item_4 = types.InlineKeyboardButton(text = 'Поиск новостей', callback_data='news_word')
-            item_5 = types.InlineKeyboardButton(text = 'Коронавирус', callback_data = 'virus')
-            item_6 = types.InlineKeyboardButton(text = 'Скачать аудио с Youtube', callback_data = 'click_download_audio')
-            item_7 = types.InlineKeyboardButton(text = 'Системы счисления', callback_data = 'system_number')
-            item_8 = types.InlineKeyboardButton(text = 'Любое число', callback_data = 'random_number')
-            item_9 = types.InlineKeyboardButton(text = 'Да или нет', callback_data = 'yes_or_not')
-            item_10 = types.InlineKeyboardButton(text = '1 или 2', callback_data = 'one_or_two')
-            item_11 = types.InlineKeyboardButton(text = 'Что лучше?', callback_data = 'what_best')
-            item_12 = types.InlineKeyboardButton(text = 'Текст в аудио', callback_data = 'convert_text_to_audio')
-            item_13 = types.InlineKeyboardButton(text = 'Голосовое сообщение в текст', callback_data = 'convert_audio_to_text')
-            item_14 = types.InlineKeyboardButton(text = 'Фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
-            item_15 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
-
-            markup_inline.add(item_1, item_2, item_3)
-            markup_inline.add(item_4, item_5)
-            markup_inline.add(item_6, item_7)
-            markup_inline.add(item_8, item_9, item_10)
-            markup_inline.add(item_11, item_12)
-            markup_inline.add(item_13)
-            markup_inline.add(item_14)
-            markup_inline.add(item_15)
-            await message.answer('Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
-
-        elif 'скачать аудио' in search or 'скачать музыку' in search or 'музык' in search:
-            send = bot.send_message(id, 'Введите url')
-            bot.register_next_step_handler(send, download_audio, id, first_name, last_name)
-
-        elif 'youtube.com' in search or 'youtu.be' in search:
-            await self.download_audio(message)
-
-        elif 'конвертировать' in search:
-            if 'голосово' in search:
-                send = bot.send_message(id, 'Отправьте или перешлите голосовое сообщение')
-                bot.register_next_step_handler(send, convert_voice_to_text, id, first_name, last_name, 'convert_voice')
-
-            elif 'в аудио' in search or ('текст' in search and 'аудио в' not in search):
-                send = bot.send_message(message.chat.id, 'Напишите что конвертировать')
-                bot.register_next_step_handler(send, convert_text_to_voice, id, first_name, last_name)
-
-            elif 'аудио' in search or 'фото' in search or 'видео' in search:
-                await message.answer('Отправьте мне аудио файл, фотографию или видео')
-
-        elif 'отзыв' in search or 'написать разработчику' in search or 'пожелан' in search or 'списаться с разработчиком' in search:
-            send = bot.send_message(id, 'Введите отзыв или пожелания')
-            bot.register_next_step_handler(send, answer_user, id, first_name, last_name)
-
-        elif 'да' in search or 'нет' in search:
-            await message.answer(random.choice(('Да', 'Нет')))
-
-        elif 'или' in search and ('один' in search or 'два' in search or '1' in search or '2' in search):
-            await message.answer(random.randint(1, 2))
-
-        elif 'лучше' in search:
-            await self.what_the_best(message)
-
-        elif 'любое число' in search or 'число от' in search or 'цифра от' in search or 'рандом' in search:
-            await self.number_random(message)
-
-        elif 'население' in search or 'сколько людей' in search:
-            await self.parse_population(message)
-
-        elif 'счислен' in search or 'систем' in search:
-            send = bot.send_message(id, 'Введите два числа через пробел, само число и систему счисления в которую перевести')
-            bot.register_next_step_handler(send, number_system, id, first_name, last_name)
-
-        else:
-            choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
-            await message.answer(random.choice(choice_text))
-
 
     # Проверка id на блокировку
     def verify_id(self, check_id):
@@ -269,7 +174,7 @@ class Function:
 
 
     # Скачивание аудио
-    async def downloading_audio(self, id, first_name, last_name, url):
+    async def downloading_audio(self, message, url):
         try:
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -288,16 +193,15 @@ class Function:
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Скачивание аудио с YouTube] {error}')
 
     # Скачивание и отправка аудио
-    async def download_audio(self, message):
+    async def download_audio(self, message, url):
         try:
-            url = message.text
             await message.answer('Скачивание началось')
 
-            await self.downloading_audio(message.from_user.id, message.from_user.first_name, message.from_user.last_name, url)
+            await self.downloading_audio(message, url)
 
             for i in os.listdir(os.getcwd()):
                 if fnmatch.fnmatch(i, '*.mp3'):
-                    await bot.send_audio(id, open(i, 'rb'), parse_mode='html')
+                    await bot.send_audio(message.from_user.id, open(i, 'rb'))
 
             self.db.add_message(url, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
@@ -313,12 +217,12 @@ class Function:
 
 
     # Отправка отзыва пользователем
-    async def answer_user(self, message):
+    async def answer_user(self, message, get_text):
         # https://accounts.google.com/DisplayUnlockCaptcha
         try:
             msg = MIMEMultipart()
             msg['Subject'] = 'Отзыв'
-            body = message.text
+            body = get_text
             msg.attach(MIMEText(body, 'plain'))
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
@@ -328,33 +232,56 @@ class Function:
             await message.answer('Сообщение отправленно, спасибо большое за отзыв!')
 
             logger.info(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка отзыва]')
-            self.db.add_message(f'[Отзыв] {message.text}', id, first_name, last_name)
+            self.db.add_message(f'[Отзыв] {get_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка отзыва] {error}')
 
 
     # Рандомное число
-    async def number_random(self, message):
+    async def number_random(self, message, get_number=None):
         try:
-            numbers = re.findall('(\d+)', message.text)
-
-            if len(numbers) < 2:
-                await message.answer('Вы ввели не все числа')
-            elif len(numbers) == 2:
-                if int(numbers[1]) > int(numbers[0]):
-                    await message.answer(random.randint(int(numbers[0])))
-                else:
-                    await message.answer(random.randint(int(numbers[1])))
-            elif len(numbers) == 3:
-                if int(numbers[1]) > int(numbers[0]):
-                    await message.answer(random.randrange(int(numbers[0]), int(numbers[1]), int(numbers[2])))
-                else:
-                    await message.answer(random.randrange(int(numbers[1]), int(numbers[0]), int(numbers[2])))
+            if get_number == None:
+                numbers = re.findall('(\d+)', message.text)
             else:
-                await message.answer('Ошибка в записи')
+                numbers = re.findall('(\d+)', get_number)
 
-            self.db.add_message(message.text, id, first_name, last_name)
+            if len(numbers) == 0:
+                await message.answer('Введите промежуток через пробел')
+                await Form.number_random.set()
+            else:
+                if len(numbers) == 1:
+                    if get_number == None:
+                        if ' до ' in message.text:
+                            await message.answer(random.randint(0, int(numbers[0])))
+                        elif ' от ' in message.text:
+                            await message.answer(random.randint(int(numbers[0]), 1000000))
+                        else:
+                            await message.answer('Вы ввели не все числа')
+                    else:
+                        if ' до ' in get_number:
+                            await message.answer(random.randint(0, int(numbers[0])))
+                        elif ' от ' in get_number:
+                            await message.answer(random.randint(int(numbers[0]), 1000000))
+                        else:
+                            await message.answer('Вы ввели не все числа')
+                elif len(numbers) == 2:
+                    if int(numbers[1]) > int(numbers[0]):
+                        await message.answer(random.randint(int(numbers[0]), int(numbers[1])))
+                    else:
+                        await message.answer(random.randint(int(numbers[1]), int(numbers[0])))
+                elif len(numbers) == 3:
+                    if int(numbers[1]) > int(numbers[0]):
+                        await message.answer(random.randrange(int(numbers[0]), int(numbers[1]), int(numbers[2])))
+                    else:
+                        await message.answer(random.randrange(int(numbers[1]), int(numbers[0]), int(numbers[2])))
+                else:
+                    await message.answer('Ошибка в записи')
+
+                if get_number == None:
+                    self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                else:
+                    self.db.add_message(get_number, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Рандомное число] {error}')
@@ -366,9 +293,9 @@ class Function:
 
 
     # Перевод в систему счисления
-    async def number_system(self, message):
+    async def number_system(self, message, get_text):
         try:
-            search = message.text.split(' ')
+            search = get_text.split(' ')
             if len(search) < 2:
                 await message.answer('Вы ввели не все числа')
             elif len(search) == 2:
@@ -398,32 +325,41 @@ class Function:
 
 
     # Выбор что лучше
-    async def what_the_best(self, message):
+    async def what_the_best(self, message, get_text=None):
         try:
-            choice_text = message.text.split(' ')
+            if get_text == None:
+                choice_text = message.text.split(' ')
+            else:
+                choice_text = get_text.split(' ')
+
             if 'лучше' in choice_text:
                 choice_text = choice_text[choice_text.index('лучше')+1:]
 
-            if 'или' in choice_text:
-                choice_text = ''.join(choice_text).split('или')
-                await message.answer(random.choice(choice_text))
+            if len(choice_text) == 0:
+                await message.answer('Введите два действия через или')
+                await Form.what_the_best.set()
             else:
-                await message.answer('Ошибка в записи')
+                if 'или' in choice_text:
+                    choice_text = ' '.join(choice_text).split('или')
+                    await message.answer(random.choice(choice_text))
+                else:
+                    await message.answer('Ошибка в записи')
 
-            self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Что лучше] {error}')
 
 
     # Конвертация голосового сообщения в текст
-    async def convert_voice_to_text(self, message, mode):
+    async def convert_voice_to_text(self, message, mode, file_get=None):
         try:
-            file_info = bot.get_file(message.voice.file_id)
-            downloaded_file = bot.download_file(file_info.file_path)
+            if file_get == None:
+                file_info = await bot.get_file(message.voice.file_id)
+            else:
+                file_info = await bot.get_file(file_get)
 
-            with open("audio.ogg", 'wb') as f:
-                f.write(downloaded_file)
+            downloaded_file = await bot.download_file(file_info.file_path, "audio.ogg")
 
             convert = subprocess.run(['ffmpeg', '-i', 'audio.ogg', 'audio.wav', '-y'])
 
@@ -449,18 +385,16 @@ class Function:
 
 
     # Конвертация текста в голосовое сообщение
-    async def convert_text_to_voice(self, message):
+    async def convert_text_to_voice(self, message, text_for_convert):
         try:
-            text_for_convert = message.text
-
             await message.answer('Конвертация началась')
             convert_text = gTTS(text=text_for_convert, lang='ru', slow=False)
             convert_text.save("audio.mp3")
 
             with open("audio.mp3", 'rb') as audio:
-                bot.send_audio(id, audio, parse_mode='html')
+                await bot.send_audio(message.from_user.id, audio)
 
-            self.db.add_message(f'[Конвертация текста] {text_for_convert}', id, first_name, last_name)
+            self.db.add_message(f'[Конвертация текста] {text_for_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование текста в аудио] {error}')
@@ -476,41 +410,38 @@ class Function:
         try:
             await message.answer('Конвертация началась')
 
-            file_info = bot.get_file(message.photo[-1].file_id)
-            downloaded_file = bot.download_file(file_info.file_path)
             convert_name_file = 'img.jpg'
-            with open(convert_name_file, 'wb') as f:
-                f.write(downloaded_file)
+            file_info = await bot.get_file(message.photo[-1].file_id)
+            downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
+
+            await self.converting_photo(convert_name_file, message)
 
             try:
                 os.remove(convert_name_file)
             except:
                 pass
-            return self.converting_photo(convert_name_file)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера или фотографию неудается распознать')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование фото в текст] {error}')
 
 
-    def converting_photo(self, convert_name_file):
+    async def converting_photo(self, convert_name_file, message):
         img = Image.open(convert_name_file)
         result_text = pytesseract.image_to_string(img, lang='rus')
 
-        return result_text
+        await message.answer(result_text)
+        self.db.add_message(f'[Конвертация фотографии в текст] {result_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
     # Конвертация аудио в текст
     async def convert_audio_to_text(self, message):
         try:
             await message.answer('Конвертация началась')
 
-            file_info = bot.get_file(message.audio.file_id)
-            downloaded_file = bot.download_file(file_info.file_path)
             convert_name_file = 'audio.ogg'
+            file_info = await bot.get_file(message.audio.file_id)
+            downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
 
-            with open(convert_name_file, 'wb') as f:
-                f.write(downloaded_file)
-
-            self.converting_audio(convert_name_file)
+            await self.converting_audio(convert_name_file, message)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера или файл неудается распознать')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование аудио в текст] {error}')
@@ -521,7 +452,7 @@ class Function:
         except:
             pass
 
-    async def converting_audio(self, convert_name_file):
+    async def converting_audio(self, convert_name_file, message):
         convert = subprocess.run(['ffmpeg', '-i', convert_name_file, 'audio.wav', '-y'])
 
         r = sr.Recognizer()
@@ -535,6 +466,7 @@ class Function:
                         result_convert += str(r.recognize_google(audio, language="ru_RU").lower())
                     else:
                         await message.answer(result_convert)
+                        self.db.add_message(f'[Конвертация аудио файла] {result_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
                         result_convert = str(r.recognize_google(audio, language="ru_RU").lower())
                 except sr.UnknownValueError:
                     count_long_pause += 1
@@ -550,16 +482,14 @@ class Function:
         try:
             await message.answer('Конвертация началась')
 
-            file_info = bot.get_file(message.video.file_id)
-            downloaded_file = bot.download_file(file_info.file_path)
-            with open("video.mp4", 'wb') as f:
-                f.write(downloaded_file)
+            file_info = await bot.get_file(message.video.file_id)
+            downloaded_file = await bot.download_file(file_info.file_path, "video.mp4")
 
             audio = VideoFileClip('video.mp4').audio
             audio.write_audiofile('audio.mp3')
             convert_name_file = 'audio.mp3'
 
-            self.converting_audio(convert_name_file)
+            await self.converting_audio(convert_name_file)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера или видео неудается распознать')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование видео в текст] {error}')
@@ -584,27 +514,18 @@ class Function:
             file_name = message.document.file_name.split('.')
 
             if file_name[-1] in photo_name:
-                file_info = bot.get_file(message.document.file_id)
-                downloaded_file = bot.download_file(file_info.file_path)
                 convert_name_file = 'img.' + str(file_name[-1])
+                file_info = await bot.get_file(message.document.file_id)
+                downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
 
-                with open(convert_name_file, 'wb') as f:
-                    f.write(downloaded_file)
-
-                result_convert_photo = converting_photo(convert_name_file)
-
-                await message.answer(result_convert_photo)
-                self.db.add_message(f'[Конвертация фото в текст] {result_convert_photo}', id, first_name, last_name)
+                await self.converting_photo(convert_name_file, message)
 
             elif file_name[-1] in audio_name:
-                file_info = bot.get_file(message.document.file_id)
-                downloaded_file = bot.download_file(file_info.file_path)
                 convert_name_file = 'audio.ogg'
+                file_info = await bot.get_file(message.document.file_id)
+                downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
 
-                with open(convert_name_file, 'wb') as f:
-                    f.write(downloaded_file)
-
-                self.converting_audio(convert_name_file)
+                await self.converting_audio(convert_name_file, message)
 
                 try:
                     os.remove('audio.wav')
@@ -612,18 +533,15 @@ class Function:
                     pass
 
             elif file_name[-1] in video_name:
-                file_info = bot.get_file(message.document.file_id)
-                downloaded_file = bot.download_file(file_info.file_path)
                 convert_video_file = 'video.' + str(file_name[-1])
-
-                with open(convert_video_file, 'wb') as f:
-                    f.write(downloaded_file)
+                file_info = await bot.get_file(message.document.file_id)
+                downloaded_file = await bot.download_file(file_info.file_path, convert_video_file)
 
                 audio = VideoFileClip(convert_video_file).audio
                 audio.write_audiofile('audio.mp3')
                 convert_name_file = 'audio.mp3'
 
-                self.converting_audio(convert_name_file)
+                await self.converting_audio(convert_name_file, message)
 
             try:
                 os.remove(convert_video_file)
@@ -640,67 +558,58 @@ class Function:
             pass
 
 
+    # Отправка информации на почту
+    async def send_information_to_email(self, message):
+        try:
+            msg = MIMEMultipart()
+            msg['Subject'] = 'Данные'
+            body = 'Отправка log/db'
+            msg.attach(MIMEText(body, 'plain'))
 
-@dp.callback_query_handler(lambda call: call.data == 'weather')
-async def callback(call: types.CallbackQuery):
-    await Function().parse_weather(call.message)
+            try:
+                part = MIMEApplication(open('info/info.log', 'rb').read())
+                part.add_header('Content-Disposition', 'attachment', filename = 'info.log')
+                msg.attach(part)
 
-@dp.callback_query_handler(lambda call: call.data == 'valuta')
-async def callback(call: types.CallbackQuery):
-    await Function().parse_rate(call.message)
+                part = MIMEApplication(open('info/server.db', 'rb').read())
+                part.add_header('Content-Disposition', 'attachment', filename = 'server.db')
+                msg.attach(part)
+            except:
+                pass
 
-@dp.callback_query_handler(lambda call: call.data == 'news')
-async def callback(call: types.CallbackQuery):
-    await Function().parse_news(call.message)
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(user_email, user_password)
+            server.sendmail(user_email, user_email, msg.as_string())
+            server.quit()
 
-@dp.callback_query_handler(lambda call: call.data == 'news_word')
-async def callback(call: types.CallbackQuery):
-    await Function().parse_news_words(call.message)
+            await message.answer('Отправка завершена')
+        except Exception as error:
+            logger.error(f'[send_email] {error}')
 
-@dp.callback_query_handler(lambda call: call.data == 'virus')
-async def callback(call: types.CallbackQuery):
-    await Function().parse_stat_covid(call.message)
 
-@dp.callback_query_handler(lambda call: call.data == 'yes_or_not')
-async def callback(call: types.CallbackQuery):
-    await call.message.answer(random.choice(('Да', 'Нет')))
+    # Парсинг погоды
+    async def message_mailig(self):
+        try:
+            r = requests.get('https://yandex.ru/pogoda/perm')
+            html = BS(r.content, 'html.parser')
 
-@dp.callback_query_handler(lambda call: call.data == 'one_or_two')
-async def callback(call: types.CallbackQuery):
-    await call.message.answer(random.randint(1, 2))
+            for el in html.select('.fact__temp'):
+                weather = el.select('.temp__value')[0].text
+                return await f'В Перми сейчас {weather}'
+        except Exception as error:
+            logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [message_mailig] {error}')
 
-@dp.callback_query_handler(lambda call: call.data == 'random_number')
-async def callback(call: types.CallbackQuery):
-    pass
+    # Отправка рассылки по времени
+    async def mailing_subscribe_users(self, message):
+        try:
+            while True:
+                if str(time.strftime("%H:%M:%S")) == str("20:47:10"):
+                    subscribe_users_list = Database('server.db').get_subscribe_users()
 
-@dp.callback_query_handler(lambda call: call.data == 'what_best')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'system_number')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'click_download_audio')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'convert_audio_to_text')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'convert_text_to_audio')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'answer_user')
-async def callback(call: types.CallbackQuery):
-    pass
-
-@dp.callback_query_handler(lambda call: call.data == 'convert_audio_photo_video_to_text')
-async def callback(call: types.CallbackQuery):
-    await call.message.answer('Отправьте фото, аудио файл или видео')
-
-@dp.callback_query_handler(lambda call: call.data == 'convert_video_youtube_to_text')
-async def callback(call: types.CallbackQuery):
-    pass
+                    for i in subscribe_users_list:
+                        text = await self.message_mailig()
+                        await bot.send_message(i, text)
+                    await self.send_information_to_email(message)
+        except Exception as error:
+            logger.error(f'[mailing_subscribe_users] {error}')
