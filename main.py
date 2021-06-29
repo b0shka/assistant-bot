@@ -4,7 +4,6 @@ from requests_in_the_bot import Requests_bot
 from database import Database
 from functions import Functions
 from config import logger, dp, Form, user_id
-import asyncio
 
 db = Database('server.db')
 req_bot = Requests_bot()
