@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import requests
 import youtube_dl
 import os
@@ -12,10 +15,11 @@ import smtplib
 from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
+from moviepy.editor import *
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from config import logger, bot, user_email, user_password
+from config import logger, bot, user_email, user_password, user_id, bot_id, Form
 from database import Database
 
 
@@ -24,12 +28,12 @@ class Functions:
         self.db = Database('server.db')
 
     # Проверка id на блокировку
-    def verify_id(self, check_id):
+    async def verify_id(self, check_id):
         block_id = []
         if check_id in block_id:
-            return 'Для вас доступ ограничен'
+            return await 'Для вас доступ ограничен'
         else:
-            return 1
+            return await 1
 
     # Парсинг погоды
     async def parse_weather(self, message):
@@ -72,18 +76,18 @@ class Functions:
     # Парсинг новостей
     async def parse_news(self, message):
         try:
-            status_news = self.db.get_settings_news(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            status_news = self.db.get_settings_news(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             r = requests.get('https://yandex.ru/news/')
             html = BS(r.content, 'html.parser')
             count_news = 0
-            while count_news != 15:
+            while count_news != 10:
                 for el in html.select('.mg-card'):
-                    if count_news == 15:
+                    if count_news == 10:
                         break
                     news = el.select('.mg-card__title')[0].text
                     if status_news == 1:
                         link = el.select('.mg-card__link')[0]['href']
-                        await message.answer(f"{news} ({link_text})")
+                        await message.answer(f"{news} ({link})")
                     else:
                         await message.answer(news)
                     count_news += 1
@@ -98,15 +102,14 @@ class Functions:
         try:
             if text_news == None:
                 text_news = message.text
-                add_message(f'[Новости по ключевым словам] {text_news}', id, first_name, last_name)
 
-            status_news = self.db.get_settings_news(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            status_news = self.db.get_settings_news(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             r = requests.get(f'https://newssearch.yandex.ru/news/search?from=tabbar&text={text_news}')
             html = BS(r.content, 'html.parser')
-            while count_news != 15:
+            while count_news != 10:
                 try:
                     for el in html.select('.news-search-story'):
-                        if count_news == 15:
+                        if count_news == 10:
                             break
                         news = el.select('.news-search-story__title')[0].text
                         if status_news == 1:
@@ -120,6 +123,8 @@ class Functions:
 
             if count_news == 0:
                 await message.answer('Ничего не найдено')
+
+            self.db.add_message(f'[Новости по ключевым словам] {text_news}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             if count_news == 0:
                 await message.answer('Ошибка на стороне сервера')
@@ -193,10 +198,12 @@ class Functions:
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Скачивание аудио с YouTube] {error}')
 
     # Скачивание и отправка аудио
-    async def download_audio(self, message, url):
+    async def download_audio(self, message, url=None):
         try:
-            await message.answer('Скачивание началось')
+            if url == None:
+                url = message.text
 
+            await message.answer('Скачивание началось')
             await self.downloading_audio(message, url)
 
             for i in os.listdir(os.getcwd()):
@@ -252,16 +259,16 @@ class Functions:
             else:
                 if len(numbers) == 1:
                     if get_number == None:
-                        if ' до ' in message.text:
+                        if ' до ' in message.text or message.text.split(' ')[0] == 'до':
                             await message.answer(random.randint(0, int(numbers[0])))
-                        elif ' от ' in message.text:
+                        elif ' от ' in message.text or message.text.split(' ')[0] == 'от':
                             await message.answer(random.randint(int(numbers[0]), 1000000))
                         else:
                             await message.answer('Вы ввели не все числа')
                     else:
-                        if ' до ' in get_number:
+                        if ' до ' in get_number or get_number.split(' ')[0] == 'до':
                             await message.answer(random.randint(0, int(numbers[0])))
-                        elif ' от ' in get_number:
+                        elif ' от ' in get_number or get_number.split(' ')[0] == 'от':
                             await message.answer(random.randint(int(numbers[0]), 1000000))
                         else:
                             await message.answer('Вы ввели не все числа')
@@ -289,7 +296,23 @@ class Functions:
 
     # Парсинг населения мира
     async def parse_population(self, message):
-        pass
+        r = requests.get('https://countrymeters.info/ru/World')
+        html = BS(r.content, 'html.parser')
+        count = 0
+
+        for el in html.select('#population_clock'):
+            count_people = el.select('.counter')
+            count += 1
+            if count == 6:
+                break
+
+        await message.answer(f'Население мира {count_people[0].text}')
+        await message.answer(f'Всего мужчин {count_people[1].text}')
+        await message.answer(f'Всего женщин {count_people[2].text}')
+        await message.answer(f'Рождено в этом году {count_people[3].text}')
+        await message.answer(f'Рождено сегодня {count_people[4].text}')
+        await message.answer(f'Умерло в этом году {count_people[5].text}')
+        await message.answer(f'Умерло сегодня {count_people[6].text}')
 
 
     # Перевод в систему счисления
@@ -354,6 +377,8 @@ class Functions:
     # Конвертация голосового сообщения в текст
     async def convert_voice_to_text(self, message, mode, file_get=None):
         try:
+            await message.answer('Конвертация началась')
+
             if file_get == None:
                 file_info = await bot.get_file(message.voice.file_id)
             else:
@@ -489,7 +514,7 @@ class Functions:
             audio.write_audiofile('audio.mp3')
             convert_name_file = 'audio.mp3'
 
-            await self.converting_audio(convert_name_file)
+            await self.converting_audio(convert_name_file, message)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера или видео неудается распознать')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование видео в текст] {error}')
@@ -589,27 +614,43 @@ class Functions:
 
 
     # Парсинг погоды
-    async def message_mailig(self):
+    def message_mailig(self):
         try:
             r = requests.get('https://yandex.ru/pogoda/perm')
             html = BS(r.content, 'html.parser')
 
             for el in html.select('.fact__temp'):
                 weather = el.select('.temp__value')[0].text
-                return await f'В Перми сейчас {weather}'
+                return f'В Перми сейчас {weather}'
         except Exception as error:
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [message_mailig] {error}')
 
     # Отправка рассылки по времени
-    async def mailing_subscribe_users(self, message):
+    async def mailing_subscribe_users(self):
         try:
             while True:
-                if str(time.strftime("%H:%M:%S")) == str("20:47:10"):
+                if str(time.strftime("%H:%M:%S")) == str("09:07:20"):
                     subscribe_users_list = Database('server.db').get_subscribe_users()
 
                     for i in subscribe_users_list:
-                        text = await self.message_mailig()
-                        await bot.send_message(i, text)
-                    await self.send_information_to_email(message)
+                        text = self.message_mailig()
+                        print(text)
+                        await bot.send_message(i[0], text)
+                    #await self.send_information_to_email()
         except Exception as error:
             logger.error(f'[mailing_subscribe_users] {error}')
+
+
+    # Принудительная отправка рассылки всем пользователям
+    async def forced_mailing(self, message, mailing_text):
+        try:
+            subscribe_users_list = Database('server.db').get_all_users()
+
+            for i in subscribe_users_list:
+                if i[0] != bot_id and i[0] != user_id:
+                    await bot.send_message(i[0], mailing_text)
+
+            await bot.send_message(user_id, 'Отправка завершена')
+        except Exception as error:
+            await bot.send_message(user_id, 'Ошибка на стороне сервера')
+            logger.error(f'[forced_mailing] {error}')

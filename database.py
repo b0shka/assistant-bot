@@ -4,7 +4,7 @@ import sqlite3
 import requests
 from bs4 import BeautifulSoup as BS
 from aiogram import types
-from config import logger
+from config import logger, bot_id
 
 class Database:
 	def __init__(self, database_file):
@@ -139,12 +139,21 @@ class Database:
 			self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 			await self.unsubscribe_from_the_mailing(message)
 		except Exception as error:
-			bot.send_message(id, 'Ошибка на стороне сервера', parse_mode='html')
+			await message.answer('Ошибка на стороне сервера')
 			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Подписка на рассылку] {error}')
 
 
+	# Получение id подписанных пользователей
 	def get_subscribe_users(self):
 		self.sql.execute(f"SELECT user_id FROM users WHERE status=1;")
 		subscribe_users_list = self.sql.fetchall()
 
 		return subscribe_users_list
+
+
+	# Получение id всех пользователей
+	def get_all_users(self):
+		self.sql.execute("SELECT user_id FROM users;")
+		users_list = self.sql.fetchall()
+
+		return users_list
