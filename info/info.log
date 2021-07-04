@@ -1,0 +1,92 @@
+[INFO][2021-07-04 17:59:30,168] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 17:59:30,397] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 17:59:30,398] start_polling:360: Start polling.
+[INFO][2021-07-04 17:59:31,543] create_table:35: Создание таблиц в БД
+[INFO][2021-07-04 17:59:32,268] add_new_user:53: [Vanya None 1100858556] Создан новый пользователь
+[INFO][2021-07-04 17:59:33,268] add_new_user:53: [Database None 1612043554] Создан новый пользователь
+[ERROR][2021-07-04 17:59:33,788] change_city:115: [Vanya None 1100858556] [change_city] no such column: perm
+[INFO][2021-07-04 18:01:03,489] stop_polling:435: Stop polling...
+[INFO][2021-07-04 18:01:07,563] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:01:07,783] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:01:07,783] start_polling:360: Start polling.
+[WARNING][2021-07-04 18:01:11,728] _showwarnmsg:109: /media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/database.py:110: RuntimeWarning: coroutine 'Database.get_city' was never awaited
+  print(self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name))
+
+[ERROR][2021-07-04 18:01:11,730] change_city:116: [Vanya None 1100858556] [change_city] no such column: perm
+[INFO][2021-07-04 18:03:11,400] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:03:11,401] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:03:15,018] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:03:15,238] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:03:15,239] start_polling:360: Start polling.
+[WARNING][2021-07-04 18:03:20,029] _showwarnmsg:109: /media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/database.py:110: RuntimeWarning: coroutine 'Database.get_city' was never awaited
+  print(self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name))
+
+[ERROR][2021-07-04 18:03:20,031] change_city:116: [Vanya None 1100858556] [change_city] no such column: perm
+[INFO][2021-07-04 18:03:22,696] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:03:22,697] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:04:11,761] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:04:11,996] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:04:11,997] start_polling:360: Start polling.
+[WARNING][2021-07-04 18:04:15,092] _showwarnmsg:109: /media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/database.py:110: RuntimeWarning: coroutine 'Database.get_city' was never awaited
+  print(self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name))
+
+[ERROR][2021-07-04 18:04:15,094] change_city:116: [Vanya None 1100858556] [change_city] no such column: perm
+[INFO][2021-07-04 18:04:16,804] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:04:16,806] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:04:33,499] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:04:33,720] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:04:33,720] start_polling:360: Start polling.
+[INFO][2021-07-04 18:06:55,415] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:06:55,416] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:07:05,683] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:07:06,900] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:07:06,901] start_polling:360: Start polling.
+[WARNING][2021-07-04 18:07:14,659] _showwarnmsg:109: /media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/database.py:110: RuntimeWarning: coroutine 'Database.get_city' was never awaited
+  print(self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name))
+
+[INFO][2021-07-04 18:08:07,296] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:08:07,297] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:08:30,064] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:08:30,289] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:08:30,290] start_polling:360: Start polling.
+[WARNING][2021-07-04 18:08:34,147] _showwarnmsg:109: /media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/database.py:111: RuntimeWarning: coroutine 'Database.get_city' was never awaited
+  self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+
+[INFO][2021-07-04 18:09:19,404] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:09:19,406] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:09:22,981] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:09:24,035] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:09:24,036] start_polling:360: Start polling.
+[INFO][2021-07-04 18:09:32,644] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:09:32,645] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:11:11,391] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:11:12,618] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:11:12,619] start_polling:360: Start polling.
+[INFO][2021-07-04 18:13:09,039] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:13:09,040] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:13:12,624] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:13:12,862] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:13:12,863] start_polling:360: Start polling.
+[INFO][2021-07-04 18:13:35,861] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:13:35,862] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:13:39,277] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:13:40,370] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:13:40,371] start_polling:360: Start polling.
+[ERROR][2021-07-04 18:13:41,395] parse_weather:73: [Vanya None 1100858556] [Парсинг погоды] Unsupported parse_mode
+[INFO][2021-07-04 18:14:48,168] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:14:48,169] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:14:53,379] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:14:53,598] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:14:53,599] start_polling:360: Start polling.
+[INFO][2021-07-04 18:16:08,484] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:16:08,485] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:16:38,250] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:16:38,478] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:16:38,478] start_polling:360: Start polling.
+[INFO][2021-07-04 18:16:41,738] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:16:41,738] start_polling:329: Goodbye!
+[INFO][2021-07-04 18:17:39,807] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-04 18:17:40,035] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-04 18:17:40,036] start_polling:360: Start polling.
+[INFO][2021-07-04 18:17:56,862] stop_polling:435: Stop polling...
+[WARNING][2021-07-04 18:17:56,863] start_polling:329: Goodbye!

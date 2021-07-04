@@ -12,7 +12,6 @@ func = Functions()
 #mailing = Thread(target=func.mailing_subscribe_users)
 #mailing.start()
 
-
 # Команда для старта бота
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
@@ -21,7 +20,7 @@ async def start(message: types.Message):
 	item2 = types.KeyboardButton('Курс валюты')
 	item3 = types.KeyboardButton('Погода')
 	item4 = types.KeyboardButton('Что ты умеешь?')
-	item5 = types.KeyboardButton('Статистика по коронавирусу')
+	item5 = types.KeyboardButton('Коронавирус')
 	markup.add(item1, item2, item3, item4, item5)
 	send_mess = f"Привет {message.from_user.first_name}!\nЯ твой персональный ассистент\nВы можете узнать у меня: погоду, курс валюты, последние новости, новости по ключевым словам, статистику по коронавирусу\nТакже имеется возможность подписаться на рассылку основной информации (/subscribe, /unsubscribe)\nКроме того у меня есть множество полезных функций, таких как: \nСкачать аудио из видео на YouTube\nКонвертация голосового сообщения, аудио файла, фотографии и видео в текст\nЕсли есть какие-то вопросы или пожелания, имеется возможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
 	await message.answer(send_mess, reply_markup = markup)
@@ -49,15 +48,16 @@ async def send_information_users(message: types.Message):
 		await message.answer(random.choice(choice_text))
 
 
-# Команда для настройки новостей
-@dp.message_handler(commands=['settings_news'])
+# Команда для настройки
+@dp.message_handler(commands=['settings'])
 async def settings_news(message: types.Message):
-	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-	item1 = types.KeyboardButton('Обычный режим')
-	item2 = types.KeyboardButton('Подробный режим')
+	markup_inline = types.InlineKeyboardMarkup()
+	item_1 = types.InlineKeyboardButton(text = 'Выбрать город для вывода погоды', callback_data = 'choice_city')
+	item_2 = types.InlineKeyboardButton(text = 'Вывод новостей', callback_data = 'mode_news')
 
-	markup.add(item1, item2)
-	await message.answer('Выберете режим', reply_markup=markup)
+	markup_inline.add(item_1)
+	markup_inline.add(item_2)
+	await message.answer('Выберите настройку чего вы хотите произвести', reply_markup=markup_inline)
 
 	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 

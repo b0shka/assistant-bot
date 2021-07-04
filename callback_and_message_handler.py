@@ -63,6 +63,12 @@ async def answer_q(message: types.Message, state: FSMContext):
     await func.parse_news_words(message, get_text)
     await state.finish()
 
+@dp.message_handler(state=Form.write_city)
+async def answer_q(message: types.Message, state: FSMContext):
+    get_text = message.text
+    await db.change_city(message, get_text)
+    await state.finish()
+
 
 
 @dp.callback_query_handler(lambda call: True)
@@ -122,5 +128,20 @@ async def callback(call):
 
     elif call.data == 'population_people':
         await func.parse_population(call.message)
+
+    elif call.data == 'population_country':
+        await func.parse_population_country(call.message)
+
+    elif call.data == 'choice_city':
+        await call.message.answer('Введите название города на английском языке')
+        await Form.write_city.set()
+
+    elif call.data == 'mode_news':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item1 = types.KeyboardButton('Обычный режим')
+        item2 = types.KeyboardButton('Подробный режим')
+
+        markup.add(item1, item2)
+        await call.message.answer('Выберете режим', reply_markup=markup)
 
     db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)

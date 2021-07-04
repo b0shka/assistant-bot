@@ -15,6 +15,7 @@ class Form(StatesGroup):
     what_the_best = State()
     mailing = State()
     search_news = State()
+    write_city = State()
 
 
 token = os.environ['token']
@@ -25,6 +26,9 @@ user_email = os.environ['user_email']
 user_password = os.environ['user_password']
 user_id = int(os.environ['user_id'])
 bot_id = int(os.environ['bot_id'])
+
+if not os.path.exists('info'):
+	os.mkdir('info')
 
 logging.basicConfig(filename="info/info.log", format = u'[%(levelname)s][%(asctime)s] %(funcName)s:%(lineno)s: %(message)s', level='INFO')
 logger = logging.getLogger()

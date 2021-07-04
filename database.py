@@ -18,9 +18,10 @@ class Database:
 				user_id INTEGER NOT NULL,
 				name VARCHAR(50) NOT NULL,
 				last_name VARCHAR(100),
+				city VARCHAR(50),
 				time_message DATETIME DEFAULT CURRENT_TIMESTAMP,
 				status BOOLEAN,
-				settings_news BOOLEAN);""")
+				mode_news BOOLEAN);""")
 			self.db.commit()
 
 			self.sql.execute("""CREATE TABLE IF NOT EXISTS `message` (
@@ -46,7 +47,7 @@ class Database:
 					check_count_id += 1
 
 			if check_count_id == 0:
-				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, settings_news) VALUES (?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0))
+				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city) VALUES (?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, 'moscow'))
 				self.db.commit()
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
@@ -73,7 +74,7 @@ class Database:
 	# Получение статуса вывода новостей
 	def get_settings_news(self, id, first_name, last_name):
 	    try:
-	        self.sql.execute(f"SELECT settings_news FROM users WHERE user_id = {id};")
+	        self.sql.execute(f"SELECT mode_news FROM users WHERE user_id={id};")
 	        return self.sql.fetchone()
 	    except Exception as error:
 	        logger.error(f'[{first_name} {last_name} {id}] [get_settings_news] {error}')
@@ -83,22 +84,48 @@ class Database:
 	async def change_settings_news(self, message, mode):
 		try:
 			if mode == 'обычный режим':
-				self.sql.execute(f"UPDATE users SET settings_news=0 WHERE user_id={message.from_user.id};")
+				self.sql.execute(f"UPDATE users SET mode_news=0 WHERE user_id={message.from_user.id};")
 			elif mode == 'подробный режим':
-				self.sql.execute(f"UPDATE users SET settings_news=1 WHERE user_id={message.from_user.id};")
+				self.sql.execute(f"UPDATE users SET mode_news=1 WHERE user_id={message.from_user.id};")
 
 			self.db.commit()
 
-			markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-			item1 = types.KeyboardButton('Новости')
-			item2 = types.KeyboardButton('Курс валюты')
-			item3 = types.KeyboardButton('Погода')
-			item4 = types.KeyboardButton('Что ты умеешь?')
-			item5 = types.KeyboardButton('Статистика по коронавирусу')
-			markup.add(item1, item2, item3, item4, item5)
-			await message.answer('Режим изменен', reply_markup=markup)
+			await self.open_main_menu(message, 'Режим изменен')
 		except Exception as error:
 			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [change_settings_news] {error}')
+
+
+	# Получение города
+	def get_city(self, id, first_name, last_name):
+		try:
+			self.sql.execute(f"SELECT city FROM users WHERE user_id={id};")
+			return self.sql.fetchone()
+		except Exception as error:
+			logger.error(f'[{first_name} {last_name} {id}] [get_city] {error}')
+
+
+	# Изменение города
+	async def change_city(self, message, city_user):
+		try:
+			self.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+			self.sql.execute(f"UPDATE users SET city='{city_user}' WHERE user_id={message.from_user.id};")
+			self.db.commit()
+
+			await self.open_main_menu(message, 'Город изменен')
+		except Exception as error:
+			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [change_city] {error}')
+
+
+	#Открытие главного меню
+	async def open_main_menu(self, message, message_text):
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+		item1 = types.KeyboardButton('Новости')
+		item2 = types.KeyboardButton('Курс валюты')
+		item3 = types.KeyboardButton('Погода')
+		item4 = types.KeyboardButton('Что ты умеешь?')
+		item5 = types.KeyboardButton('Коронавирус')
+		markup.add(item1, item2, item3, item4, item5)
+		await message.answer(message_text, reply_markup=markup)
 
 
 	# Подписка на рассылку

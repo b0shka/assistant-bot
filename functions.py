@@ -38,12 +38,39 @@ class Functions:
     # Парсинг погоды
     async def parse_weather(self, message):
         try:
-            r = requests.get('https://yandex.ru/pogoda/perm')
+            city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
+            r = requests.get(f'https://yandex.ru/pogoda/{city}')
             html = BS(r.content, 'html.parser')
 
-            for el in html.select('.fact__temp'):
-                weather = el.select('.temp__value')[0].text
-                await message.answer(f'В Перми сейчас {weather}')
+            for el in html.select('.header-title'):
+                parse_city = el.select('.title_level_1')[0].text
+
+            if parse_city == 'Такой страницы не существует':
+                await message.answer('Вы казали в настройках не существующий город')
+            else:
+                for el in html.select('.fact__temp'):
+                    temp = el.select('.temp__value')[0].text
+                    await message.answer(f'{parse_city} {temp}')
+                    break
+                
+                for el in html.select('.fact__feelings'):
+                    temp_feel = el.select('.temp__value_with-unit')[0].text
+                    await message.answer(f'Ощущается как {temp_feel}')
+
+                    weather = el.select('.link__condition')[0].text
+                    await message.answer(f'{weather}')
+                    break
+
+                for el in html.select('.term_orient_v'):
+                    wind = el.select('.term__value')[0].text
+                    await message.answer(f'Ветер {wind}')
+                    break
+
+                for el in html.select('.title-icon'):
+                    icon_text = el.select('.title-icon__text')[0].text
+                    await message.answer(icon_text)
+                    break
+
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Парсинг погоды] {error}')
@@ -137,13 +164,10 @@ class Functions:
             # Статистика в Перми
             r = requests.get('https://permkrai.ru/antivirus/')
             html = BS(r.content, 'html.parser')
-            data = []
 
             for el in html.select('.col-sm-3'):
-                data.append(el.select('.snafu__value')[0].text)
-
-            infected = data[0].split()[1]
-            #died = data[5].split()[1]
+                infected = el.select('.snafu__value')[0].text.split()[1]
+                break
 
             await message.answer(f'Статистика в Перми:\nЗараженных сегодня - {infected}')
 
@@ -313,6 +337,30 @@ class Functions:
         await message.answer(f'Рождено сегодня {count_people[4].text}')
         await message.answer(f'Умерло в этом году {count_people[5].text}')
         await message.answer(f'Умерло сегодня {count_people[6].text}')
+
+    import chardet
+
+    # Парсинг населения стран
+    async def parse_population_country(self, message):
+        r = requests.get('https://countrymeters.info/ru/World')
+        r.encoding = 'utf8'
+
+        soup = BS(r.text, 'lxml')
+        block = soup.find('table', class_='facts')
+
+
+        count_country = block.find_all('td')
+        info_population = []
+
+        for i in count_country:
+            if i.text != '' and '%' not in i.text:
+                info_population.append(i.text)
+
+        for i in range(0, len(info_population), 3):
+            text_message = ''
+            for j in range(1, 3):
+                text_message += info_population[i+j] + ' '
+            await message.answer(text_message)
 
 
     # Перевод в систему счисления
