@@ -69,6 +69,15 @@ async def answer_q(message: types.Message, state: FSMContext):
     await db.change_city(message, get_text)
     await state.finish()
 
+@dp.message_handler(state=Form.confirmation_deletion)
+async def answer_q(message: types.Message, state: FSMContext):
+    get_text = message.text
+    if get_text == 'yes':
+        await db.delete_data(message)
+    else:
+        await message.answer('Удаление отменено')
+    await state.finish()
+
 
 
 @dp.callback_query_handler(lambda call: True)
@@ -143,5 +152,17 @@ async def callback(call):
 
         markup.add(item1, item2)
         await call.message.answer('Выберете режим', reply_markup=markup)
+
+    elif call.data == 'list_users':
+        await db.get_list_users(call.message)
+
+    elif call.data == 'list_subscribe_users':
+        await db.get_list_subscribe_users(call.message)
+
+    elif call.data == 'list_messages':
+        await db.get_list_message(call.message)
+
+    elif call.data == 'send_db':
+        await db.send_db(call.message)
 
     db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)

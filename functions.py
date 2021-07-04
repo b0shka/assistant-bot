@@ -46,7 +46,7 @@ class Functions:
                 parse_city = el.select('.title_level_1')[0].text
 
             if parse_city == 'Такой страницы не существует':
-                await message.answer('Вы казали в настройках не существующий город')
+                await message.answer('Вы указали в настройках не существующий город')
             else:
                 for el in html.select('.fact__temp'):
                     temp = el.select('.temp__value')[0].text

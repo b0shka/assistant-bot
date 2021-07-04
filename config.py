@@ -16,6 +16,7 @@ class Form(StatesGroup):
     mailing = State()
     search_news = State()
     write_city = State()
+    confirmation_deletion = State()
 
 
 token = os.environ['token']

@@ -22,7 +22,7 @@ async def start(message: types.Message):
 	item4 = types.KeyboardButton('Что ты умеешь?')
 	item5 = types.KeyboardButton('Коронавирус')
 	markup.add(item1, item2, item3, item4, item5)
-	send_mess = f"Привет {message.from_user.first_name}!\nЯ твой персональный ассистент\nВы можете узнать у меня: погоду, курс валюты, последние новости, новости по ключевым словам, статистику по коронавирусу\nТакже имеется возможность подписаться на рассылку основной информации (/subscribe, /unsubscribe)\nКроме того у меня есть множество полезных функций, таких как: \nСкачать аудио из видео на YouTube\nКонвертация голосового сообщения, аудио файла, фотографии и видео в текст\nЕсли есть какие-то вопросы или пожелания, имеется возможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
+	send_mess = f"Привет {message.from_user.first_name}!\nЯ твой персональный ассистент\nВы можете узнать у меня: погоду (укажите ваш город в настройках /settings), курс валюты, последние новости, новости по ключевым словам, статистику по коронавирусу\nТакже имеется возможность подписаться на рассылку основной информации (/subscribe, /unsubscribe)\nКроме того у меня есть множество полезных функций, таких как: \nСкачать аудио из видео на YouTube\nКонвертация голосового сообщения, аудио файла, фотографии и видео в текст\nЕсли есть какие-то вопросы или пожелания, имеется возможность отправить разработчику анонимный отзыв\n\nДля полного списка команд введите /help"
 	await message.answer(send_mess, reply_markup = markup)
 
 	db.create_table()
@@ -32,7 +32,7 @@ async def start(message: types.Message):
 # Команда для вывода списка всех команд бота
 @dp.message_handler(commands=['help'])
 async def help(message: types.Message):
-	send_mess = 'Вот полный список запросов:\n\nНовости\nНовости (и слова по которым искать)\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nНаселение\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nРандомное число от ...\nРандомное число до ...\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение (и позже отправьте или перешлите голосовое сообщение)\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео (и позже скиньте его)\nКонвертировать текст (и позже напишите сам текст)\nНаписать отзыв (и позже написать текст)\n/settings_news (для настройки вывода новостей)'
+	send_mess = 'Вот полный список запросов:\n\nНовости\nНовости (и слова по которым искать)\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nНаселение\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nРандомное число от ...\nРандомное число до ...\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение (и позже отправьте или перешлите голосовое сообщение)\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео (и позже скиньте его)\nКонвертировать текст (и позже напишите сам текст)\nНаписать отзыв (и позже написать текст)\n/settings (для настройки вывода новостей, и указания вашего города для вывода погоды)'
 	await message.answer(send_mess)
 
 	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
@@ -43,6 +43,36 @@ async def help(message: types.Message):
 async def send_information_users(message: types.Message):
 	if message.from_user.id == user_id:
 		await func.send_information_to_email(message)
+	else:
+		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
+		await message.answer(random.choice(choice_text))
+
+
+# Получение статистики по команде
+@dp.message_handler(commands=['statistic'])
+async def send_information_users(message: types.Message):
+	if message.from_user.id == user_id:
+		await db.get_statistic(message)
+	else:
+		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
+		await message.answer(random.choice(choice_text))
+
+
+# Получение детальной статистики по команде
+@dp.message_handler(commands=['statistic_detailed'])
+async def send_information_users(message: types.Message):
+	if message.from_user.id == user_id:
+		markup_inline = types.InlineKeyboardMarkup()
+		item_1 = types.InlineKeyboardButton(text = 'Список пользователей', callback_data = 'list_users')
+		item_2 = types.InlineKeyboardButton(text = 'Список подписанных пользователей', callback_data = 'list_subscribe_users')
+		item_3 = types.InlineKeyboardButton(text = 'Список самых частых сообщений', callback_data = 'list_messages')
+		item_4 = types.InlineKeyboardButton(text = 'Скинуть базу данных', callback_data = 'send_db')
+
+		markup_inline.add(item_1)
+		markup_inline.add(item_2)
+		markup_inline.add(item_3)
+		markup_inline.add(item_4)
+		await message.answer('Вот что доступно', reply_markup=markup_inline)
 	else:
 		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
 		await message.answer(random.choice(choice_text))

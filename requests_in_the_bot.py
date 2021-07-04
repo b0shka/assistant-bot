@@ -92,13 +92,13 @@ class Requests_bot:
             await message.answer('Введите отзыв или пожелания')
             await Form.feedback.set()
 
-        elif 'да' in search or 'нет' in search:
+        elif (' да ' in search or ' нет ' in search) and 'или' in search:
             await message.answer(random.choice(('Да', 'Нет')))
 
         elif 'или' in search and ('один' in search or 'два' in search or '1' in search or '2' in search):
             await message.answer(random.randint(1, 2))
 
-        elif 'лучше' in search:
+        elif ' лучше ' in search:
             await self.func.what_the_best(message)
 
         elif 'любое число' in search or 'число от' in search or 'цифра от' in search or 'рандом' in search:
@@ -116,6 +116,10 @@ class Requests_bot:
 
         elif search == 'обычный режим' or search == 'подробный режим':
             await self.db.change_settings_news(message, search)
+
+        elif search == 'удалить мои данные':
+            await message.answer('Вы уверены? (yes/no)')
+            await Form.confirmation_deletion.set()
 
         else:
             choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
