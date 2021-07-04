@@ -361,6 +361,9 @@ class Functions:
             for j in range(1, 3):
                 text_message += info_population[i+j] + ' '
             await message.answer(text_message)
+            
+            if info_population[i] == '10':
+                break
 
 
     # Перевод в систему счисления
