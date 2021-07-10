@@ -8,10 +8,11 @@ import fnmatch
 import speech_recognition as sr
 import subprocess
 import re
-import time
+import datetime
 import random
 import pytesseract
 import smtplib
+import asyncio
 from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
@@ -36,9 +37,8 @@ class Functions:
             return await 1
 
     # Парсинг погоды
-    async def parse_weather(self, message):
+    async def parse_weather(self, message, city):
         try:
-            city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             r = requests.get(f'https://yandex.ru/pogoda/{city}')
             html = BS(r.content, 'html.parser')
 
@@ -46,7 +46,7 @@ class Functions:
                 parse_city = el.select('.title_level_1')[0].text
 
             if parse_city == 'Такой страницы не существует':
-                await message.answer('Вы указали в настройках не существующий город')
+                await message.answer('Вы указали /settings не существующий город или ввели его на русском')
             else:
                 for el in html.select('.fact__temp'):
                     temp = el.select('.temp__value')[0].text
@@ -205,7 +205,7 @@ class Functions:
     # Скачивание аудио
     async def downloading_audio(self, message, url):
         try:
-            ydl_opts = {
+            file_opts = {
                 'format': 'bestaudio/best',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
@@ -214,11 +214,10 @@ class Functions:
                 }],
             }
 
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
-            await message.answer('Отправка')
+            with youtube_dl.YoutubeDL(file_opts) as file:
+                file.download([url])
         except Exception as error:
-            await message.answer('Ошибка на стороне сервера')
+            await message.answer('Ошибка при скачивании файла')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Скачивание аудио с YouTube] {error}')
 
     # Скачивание и отправка аудио
@@ -227,24 +226,23 @@ class Functions:
             if url == None:
                 url = message.text
 
+                if '&list' in url:
+                    url = url.split('&list')
+                    url = url[0]
+
             await message.answer('Скачивание началось')
             await self.downloading_audio(message, url)
+            await message.answer('Отправка')
 
             for i in os.listdir(os.getcwd()):
-                if fnmatch.fnmatch(i, '*.mp3'):
+                if fnmatch.fnmatch(i, '*.mp3') or fnmatch.fnmatch(i, '*.m4a'):
                     await bot.send_audio(message.from_user.id, open(i, 'rb'))
+                    os.remove(i)
 
             self.db.add_message(url, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка аудио с YouTube] {error}')
-
-        try:
-            for i in os.listdir(os.getcwd()):
-                if fnmatch.fnmatch(i, '*.mp3'):
-                    os.remove(i)
-        except:
-            pass
 
 
     # Отправка отзыва пользователем
@@ -667,27 +665,136 @@ class Functions:
     # Парсинг погоды
     def message_mailig(self):
         try:
-            r = requests.get('https://yandex.ru/pogoda/perm')
+            mailing_text = 'Новости:\n'
+
+            # News
+            r = requests.get('https://yandex.ru/news/')
+            html = BS(r.content, 'html.parser')
+            count_news = 0
+            while count_news != 10:
+                for el in html.select('.mg-card'):
+                    if count_news == 10:
+                        break
+                    news = el.select('.mg-card__title')[0].text
+                    mailing_text += news + '\n'
+                    count_news += 1
+
+            # Rate
+            mailing_text += '\nКурс валюты\n'
+
+            r = requests.get('https://www.sberometer.ru/cbr/')
             html = BS(r.content, 'html.parser')
 
-            for el in html.select('.fact__temp'):
-                weather = el.select('.temp__value')[0].text
-                return f'В Перми сейчас {weather}'
+            for el in html.select('.zebra-2'):
+                dollar = el.select('.b')
+                mailing_text += f'Курс доллара {dollar[0].text}\n'
+                mailing_text += f'Курс евро {dollar[1].text}\n'
+                break
+
+            r = requests.get('https://www.calc.ru/Bitcoin-k-rublyu-online.html')
+            html = BS(r.content, 'html.parser')
+
+            for el in html.select('.t18'):
+                btc = el.select('b')[1].text.replace(' ', '.', 2)
+                mailing_text += f'Курс биткоина {btc}\n'
+                break
+
+            # Weather
+            '''mailing_text += '\nПогода\n'
+
+            #city = self.db.get_city(user_id)[0]
+            r = requests.get(f'https://yandex.ru/pogoda/perm')
+            html = BS(r.content, 'html.parser')
+
+            for el in html.select('.header-title'):
+                parse_city = el.select('.title_level_1')[0].text
+
+            if parse_city != 'Такой страницы не существует':
+                for el in html.select('.fact__temp'):
+                    temp = el.select('.temp__value')[0].text
+                    mailing_text += f'{parse_city} {temp}\n'
+                    break
+                
+                for el in html.select('.fact__feelings'):
+                    temp_feel = el.select('.temp__value_with-unit')[0].text
+                    mailing_text += f'Ощущается как {temp_feel}\n'
+
+                    weather = el.select('.link__condition')[0].text
+                    mailing_text += f'{weather}\n'
+                    break
+
+                for el in html.select('.term_orient_v'):
+                    wind = el.select('.term__value')[0].text
+                    mailing_text += f'Ветер {wind}\n'
+                    break
+
+                for el in html.select('.title-icon'):
+                    icon_text = el.select('.title-icon__text')[0].text
+                    mailing_text += icon_text + '\n'
+                    break'''
+
+            # Covid
+            mailing_text += '\nСтатистика по коронавирусу\n'
+
+            # Статистика в Перми
+            r = requests.get('https://permkrai.ru/antivirus/')
+            html = BS(r.content, 'html.parser')
+
+            for el in html.select('.col-sm-3'):
+                infected = el.select('.snafu__value')[0].text.split()[1]
+                break
+
+            mailing_text += f'Статистика в Перми:\nЗараженных сегодня - {infected}\n'
+
+            # Статистика в России
+            r = requests.get('https://coronavirusnik.ru/')
+            html = BS(r.content, 'html.parser')
+
+            for el in html.select('.cases'):
+                russia_stat_infected = el.select('.plus')[0].text.replace('(', '').replace(')', '')
+                break
+            for el in html.select('.deaths'):
+                russia_stat_died = el.select('.plus')[0].text.replace('(', '').replace(')', '')
+                break
+
+            mailing_text += f'Статистика в России:\nЗараженных сегодня - {russia_stat_infected}\nУмерло сегодня - {russia_stat_died}\n'
+
+            # Статистика по миру
+            r = requests.get('https://coronavirus-monitor.info/')
+            html = BS(r.content, 'html.parser')
+            world_stat = []
+            x = 0
+
+            for el in html.select('.info_blk'):
+                world_stat.append(el.select('sup')[0].text.replace(' ', ''))
+                x += 1
+                if x == 3:
+                    break
+
+            mailing_text += f'Статистика по миру:\nЗараженных сегодня - {world_stat[0]}\nУмерло сегодня - {world_stat[2]}\n'
+
+
+            return mailing_text
+
         except Exception as error:
-            logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [message_mailig] {error}')
+            logger.error(f'[message_mailig] {error}')
+
 
     # Отправка рассылки по времени
-    async def mailing_subscribe_users(self):
+    async def mailing_subscribe_users(self, sleep_for):
         try:
             while True:
-                if str(time.strftime("%H:%M:%S")) == str("09:07:20"):
+                await asyncio.sleep(sleep_for)
+                time_mailing = [1, 7, 20]
+            
+                if datetime.datetime.now().hour == time_mailing[0] and datetime.datetime.now().minute == time_mailing[1] and (datetime.datetime.now().second >= time_mailing[2] and (datetime.datetime.now().second - sleep_for) <= time_mailing[2]):
                     subscribe_users_list = Database('server.db').get_subscribe_users()
+                    text_mailing = self.message_mailig()
 
                     for i in subscribe_users_list:
-                        text = self.message_mailig()
-                        print(text)
-                        await bot.send_message(i[0], text)
-                    #await self.send_information_to_email()
+                        await bot.send_message(i[0], text_mailing)
+
+                    await self.send_information_to_email()
         except Exception as error:
             logger.error(f'[mailing_subscribe_users] {error}')
 

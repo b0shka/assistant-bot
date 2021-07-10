@@ -1,6 +1,6 @@
 import random
 from aiogram import types
-from config import dp, Form
+from config import bot, Form
 from functions import Functions
 from database import Database
 from callback_and_message_handler import *
@@ -14,7 +14,16 @@ class Requests_bot:
     # Получение результата поиска
     async def result_message(self, search, message):
         if 'погода' in search or 'weather' in search:
-            await self.func.parse_weather(message)
+            try:
+                city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
+            except TypeError:
+                self.db.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
+
+            if city == '':
+                await message.answer('Сначала укажите свой город в /settings')
+            else:
+                await self.func.parse_weather(message, city)
 
         elif 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
             await self.func.parse_rate(message)
@@ -120,6 +129,9 @@ class Requests_bot:
         elif search == 'удалить мои данные':
             await message.answer('Вы уверены? (yes/no)')
             await Form.confirmation_deletion.set()
+
+        elif ('куб' in search or 'кости' in search) and 'бросить' in search:
+            await bot.send_dice(message.from_user.id)
 
         else:
             choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')

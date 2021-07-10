@@ -48,7 +48,7 @@ class Database:
 					check_count_id += 1
 
 			if check_count_id == 0:
-				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city) VALUES (?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, 'moscow'))
+				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city) VALUES (?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, ''))
 				self.db.commit()
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
@@ -97,7 +97,7 @@ class Database:
 
 
 	# Получение города
-	def get_city(self, id, first_name, last_name):
+	def get_city(self, id, first_name=None, last_name=None):
 		try:
 			self.sql.execute(f"SELECT city FROM users WHERE user_id={id};")
 			return self.sql.fetchone()
@@ -244,8 +244,7 @@ class Database:
 	# Получение списка подписанных пользователей
 	async def get_list_subscribe_users(self, message):
 		try:
-			self.sql.execute('SELECT user_id FROM users WHERE status=1;')
-			list_subscribe_users = self.sql.fetchall()
+			list_subscribe_users = self.get_subscribe_users()
 			await message.answer(f'Количество подписанных на рассылку - {len(list_subscribe_users)}')
 			for i in list_subscribe_users:
 				await message.answer(f'{i[1]} {i[2]} {i[0]}')
@@ -254,7 +253,7 @@ class Database:
 			logger.error(f'[get_list_subscribe_users] {error}')
 
 
-	# Получение списка часты сообщений
+	# Получение списка частых сообщений
 	async def get_list_message(self, message):
 		try:
 			self.sql.execute('SELECT text_message FROM message;')
