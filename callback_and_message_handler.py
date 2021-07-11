@@ -1,7 +1,7 @@
 import random
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from config import dp, Form
+from config import dp, bot, Form
 from functions import Functions
 from database import Database
 
@@ -76,6 +76,17 @@ async def answer_q(message: types.Message, state: FSMContext):
         await db.delete_data(message)
     else:
         await message.answer('Удаление отменено')
+    await state.finish()
+
+@dp.message_handler(content_types=["photo"], state=Form.recognition)
+async def answer_q(message: types.Message, state: FSMContext):
+    await message.answer('Распознавание началось')
+
+    convert_name_file = 'img.jpg'
+    file_info = await bot.get_file(message.photo[-1].file_id)
+    await bot.download_file(file_info.file_path, convert_name_file)
+
+    await func.recognition_faces(message, convert_name_file)
     await state.finish()
 
 
@@ -164,5 +175,9 @@ async def callback(call):
 
     elif call.data == 'send_db':
         await db.send_db(call.message)
+
+    elif call.data == 'recognition_faces':
+        await call.message.answer('Скиньте фотографию')
+        await Form.recognition.set()
 
     db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)

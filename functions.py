@@ -13,7 +13,8 @@ import random
 import pytesseract
 import smtplib
 import asyncio
-from PIL import Image
+import face_recognition
+from PIL import Image, ImageDraw
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
 from moviepy.editor import *
@@ -486,7 +487,7 @@ class Functions:
 
             convert_name_file = 'img.jpg'
             file_info = await bot.get_file(message.photo[-1].file_id)
-            downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
+            await bot.download_file(file_info.file_path, convert_name_file)
 
             await self.converting_photo(convert_name_file, message)
 
@@ -513,7 +514,7 @@ class Functions:
 
             convert_name_file = 'audio.ogg'
             file_info = await bot.get_file(message.audio.file_id)
-            downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
+            await bot.download_file(file_info.file_path, convert_name_file)
 
             await self.converting_audio(convert_name_file, message)
         except Exception as error:
@@ -527,7 +528,7 @@ class Functions:
             pass
 
     async def converting_audio(self, convert_name_file, message):
-        convert = subprocess.run(['ffmpeg', '-i', convert_name_file, 'audio.wav', '-y'])
+        subprocess.run(['ffmpeg', '-i', convert_name_file, 'audio.wav', '-y'])
 
         r = sr.Recognizer()
         result_convert = ''
@@ -557,7 +558,7 @@ class Functions:
             await message.answer('Конвертация началась')
 
             file_info = await bot.get_file(message.video.file_id)
-            downloaded_file = await bot.download_file(file_info.file_path, "video.mp4")
+            await bot.download_file(file_info.file_path, "video.mp4")
 
             audio = VideoFileClip('video.mp4').audio
             audio.write_audiofile('audio.mp3')
@@ -590,14 +591,14 @@ class Functions:
             if file_name[-1] in photo_name:
                 convert_name_file = 'img.' + str(file_name[-1])
                 file_info = await bot.get_file(message.document.file_id)
-                downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
+                await bot.download_file(file_info.file_path, convert_name_file)
 
                 await self.converting_photo(convert_name_file, message)
 
             elif file_name[-1] in audio_name:
                 convert_name_file = 'audio.ogg'
                 file_info = await bot.get_file(message.document.file_id)
-                downloaded_file = await bot.download_file(file_info.file_path, convert_name_file)
+                await bot.download_file(file_info.file_path, convert_name_file)
 
                 await self.converting_audio(convert_name_file, message)
 
@@ -609,7 +610,7 @@ class Functions:
             elif file_name[-1] in video_name:
                 convert_video_file = 'video.' + str(file_name[-1])
                 file_info = await bot.get_file(message.document.file_id)
-                downloaded_file = await bot.download_file(file_info.file_path, convert_video_file)
+                await bot.download_file(file_info.file_path, convert_video_file)
 
                 audio = VideoFileClip(convert_video_file).audio
                 audio.write_audiofile('audio.mp3')
@@ -812,3 +813,30 @@ class Functions:
         except Exception as error:
             await bot.send_message(user_id, 'Ошибка на стороне сервера')
             logger.error(f'[forced_mailing] {error}')
+
+
+    # Определение лиц на фотографии
+    async def recognition_faces(self, message, photo_name):
+        try:
+            image = face_recognition.load_image_file(photo_name)
+            locations = face_recognition.face_locations(image)
+
+            pil_image = Image.fromarray(image)
+            pil_draw = ImageDraw.Draw(pil_image)
+
+            for (top, right, bottom, left) in locations:
+                pil_draw.rectangle(((left, top), (right, bottom)), outline=(255, 255, 0), width=4)
+
+            del pil_draw
+            pil_image.save(f"new_{photo_name}")
+
+            await bot.send_photo(message.from_user.id, open(f"new_{photo_name}", 'rb'))
+        except Exception as error:
+            await bot.send_message(user_id, 'Ошибка на стороне сервера')
+            logger.error(f'[recognition_faces] {error}')
+
+        try:
+            os.remove(photo_name)
+            os.remove(f'new_{photo_name}')
+        except:
+            pass

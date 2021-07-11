@@ -62,7 +62,8 @@ class Requests_bot:
             item_14 = types.InlineKeyboardButton(text = 'Население стран', callback_data = 'population_country')
             item_15 = types.InlineKeyboardButton(text = 'Голосовое сообщение в текст', callback_data = 'convert_voice_to_text')
             item_16 = types.InlineKeyboardButton(text = 'Фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
-            item_17 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
+            item_17 = types.InlineKeyboardButton(text = 'Найти лица на фотографии', callback_data = 'recognition_faces')
+            item_18 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
 
             markup_inline.add(item_1, item_2, item_3)
             markup_inline.add(item_4, item_5)
@@ -73,6 +74,7 @@ class Requests_bot:
             markup_inline.add(item_15)
             markup_inline.add(item_16)
             markup_inline.add(item_17)
+            markup_inline.add(item_18)
             await message.answer('Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
 
         elif 'скачать аудио' in search or 'скачать музыку' in search or 'музык' in search:
@@ -132,6 +134,10 @@ class Requests_bot:
 
         elif ('куб' in search or 'кости' in search) and 'бросить' in search:
             await bot.send_dice(message.from_user.id)
+
+        elif ' лиц' in search and ('найти' in search or 'определить' in search or 'распознать' in search):
+            await message.answer('Скиньте фотографию')
+            await Form.recognition.set()
 
         else:
             choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
