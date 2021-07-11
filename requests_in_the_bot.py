@@ -1,9 +1,11 @@
 import random
+import re
 from aiogram import types
 from config import bot, Form
 from functions import Functions
 from database import Database
 from callback_and_message_handler import *
+from list_requests import *
 
 
 class Requests_bot:
@@ -13,7 +15,7 @@ class Requests_bot:
 
     # Получение результата поиска
     async def result_message(self, search, message):
-        if 'погода' in search or 'weather' in search:
+        if bool(re.search('|'.join(weather), search)) == True:
             try:
                 city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             except TypeError:
@@ -25,10 +27,10 @@ class Requests_bot:
             else:
                 await self.func.parse_weather(message, city)
 
-        elif 'курс' in search or 'валют' in search or 'доллар' in search or 'долар' in search or 'евро' in search or 'rate' in search:
+        elif bool(re.search('|'.join(rate), search)) == True:
             await self.func.parse_rate(message)
 
-        elif 'новости' in search or'news' in search:
+        elif 'новости' in search or 'news' in search:
             text_news = search.split(' ')
             if 'новости' in search:
                 text_news = text_news[text_news.index('новости')+1:]
@@ -41,10 +43,10 @@ class Requests_bot:
             else:
                 await self.func.parse_news(message)
 
-        elif 'статистика' in search or 'коронавирус' in search or 'covid' in search:
+        elif bool(re.search('|'.join(covid), search)) == True:
             await self.func.parse_stat_covid(message)
 
-        elif 'что ты' in search or 'умеешь' in search:
+        elif bool(re.search('|'.join(skills), search)) == True:
             markup_inline = types.InlineKeyboardMarkup()
             item_1 = types.InlineKeyboardButton(text = 'Погода', callback_data = 'weather')
             item_2 = types.InlineKeyboardButton(text = 'Курс валюты', callback_data = 'valuta')
@@ -77,29 +79,29 @@ class Requests_bot:
             markup_inline.add(item_18)
             await message.answer('Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
 
-        elif 'скачать аудио' in search or 'скачать музыку' in search or 'музык' in search:
+        elif bool(re.search('|'.join(download_audio), search)) == True:
             await message.answer("Введите url")
             await Form.url.set()
 
         elif 'youtube.com' in search or 'youtu.be' in search:
             await self.func.download_audio(message)
 
-        elif 'конвертировать' in search:
-            if 'голосово' in search:
+        elif bool(re.search('|'.join(convert), search)) == True:
+            if bool(re.search('|'.join(vioce_to_text), search)) == True:
                 await message.answer('Отправьте или перешлите голосовое сообщение')
                 await Form.voice_msg.set()
 
-            elif 'в аудио' in search or ('текст' in search and 'аудио в' not in search):
+            elif bool(re.search('|'.join(text_to_audio), search)) == True:
                 await message.answer('Напишите что конвертировать')
                 await Form.text_for_convert.set()
 
-            elif 'аудио' in search or 'фото' in search or 'видео' in search:
+            elif bool(re.search('|'.join(audio_photo_video_to_text), search)) == True:
                 await message.answer('Отправьте мне аудио файл, фотографию или видео')
 
             else:
                 await message.answer('Вы не указали что конвертировать')
 
-        elif 'отзыв' in search or 'написать разработчику' in search or 'пожелан' in search or 'списаться с разработчиком' in search:
+        elif bool(re.search('|'.join(feedback), search)) == True:
             await message.answer('Введите отзыв или пожелания')
             await Form.feedback.set()
 
@@ -112,16 +114,16 @@ class Requests_bot:
         elif ' лучше ' in search:
             await self.func.what_the_best(message)
 
-        elif 'любое число' in search or 'число от' in search or 'цифра от' in search or 'рандом' in search:
+        elif bool(re.search('|'.join(random_number), search)) == True:
             await self.func.number_random(message)
 
-        elif 'население' in search or 'сколько людей' in search:
-            if 'стран' in search:
+        elif bool(re.search('|'.join(population), search)) == True:
+            if bool(re.search('|'.join(country), search)) == True:
                 await self.func.parse_population_country(message)
             else:
                 await self.func.parse_population(message)
 
-        elif 'счислен' in search or 'систем' in search:
+        elif bool(re.search('|'.join(system_number), search)) == True:
             await message.answer('Введите два числа через пробел, само число и систему счисления в которую перевести')
             await Form.number_system.set()
 
@@ -132,10 +134,10 @@ class Requests_bot:
             await message.answer('Вы уверены? (yes/no)')
             await Form.confirmation_deletion.set()
 
-        elif ('куб' in search or 'кости' in search) and 'бросить' in search:
+        elif ('куб' in search or 'кости' in search) and bool(re.search('|'.join(throw), search)) == True:
             await bot.send_dice(message.from_user.id)
 
-        elif ' лиц' in search and ('найти' in search or 'определить' in search or 'распознать' in search):
+        elif ' лиц' in search and bool(re.search('|'.join(recognition), search)) == True:
             await message.answer('Скиньте фотографию')
             await Form.recognition.set()
 
