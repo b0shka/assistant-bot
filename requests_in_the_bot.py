@@ -32,10 +32,15 @@ class Requests_bot:
 
         elif bool(re.search('|'.join(news_main), search)) or bool(re.search('|'.join(news), search)):
             text_news = search.split(' ')
-            if 'новости' in search:
-                text_news = text_news[text_news.index('новости')+1:]
-            else:
-                text_news = text_news[text_news.index('news')+1:]
+
+            try:
+                if 'новости' in search:
+                    text_news = text_news[text_news.index('новости')+1:]
+                else:
+                    text_news = text_news[text_news.index('news')+1:]
+            except ValueError:
+                search_text = re.findall('|'.join(news), search)[0]
+                text_news = text_news[text_news.index(search_text)+1:]
 
             if len(text_news) > 0:
                 text_news = ' '.join(text_news)

@@ -15,7 +15,7 @@ for i in list_requests:
         file.write(', '.join(globals()[i]))
 
 
-'''
+
 import re
 
 s = 'weather'
@@ -25,4 +25,3 @@ print(re.search('|'.join(weather), s))
 
 if len(re.findall('|'.join(weather), s)) == 1:
     print('good')
-'''
