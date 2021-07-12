@@ -18,6 +18,7 @@ class Form(StatesGroup):
     write_city = State()
     confirmation_deletion = State()
     recognition = State()
+    what_convert = State()
 
 
 token = os.environ['token']

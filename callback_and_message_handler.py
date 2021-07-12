@@ -1,9 +1,11 @@
+import re
 import random
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from config import dp, bot, Form
 from functions import Functions
 from database import Database
+from list_requests import *
 
 func = Functions()
 db = Database('server.db')
@@ -88,6 +90,28 @@ async def answer_q(message: types.Message, state: FSMContext):
 
     await func.recognition_faces(message, convert_name_file)
     await state.finish()
+
+@dp.message_handler(state=Form.what_convert)
+async def answer_q(message: types.Message, state: FSMContext):
+    get_text = message.text
+
+    if bool(re.search('|'.join(vioce_to_text_main), get_text))  or bool(re.search('|'.join(vioce_to_text), get_text))  :
+        await message.answer('Отправьте или перешлите голосовое сообщение')
+        await state.finish()
+        await Form.voice_msg.set()
+
+    elif bool(re.search('|'.join(text_to_audio_main), get_text))  or bool(re.search('|'.join(text_to_audio), get_text))  :
+        await message.answer('Напишите что конвертировать')
+        await state.finish()
+        await Form.text_for_convert.set()
+
+    elif bool(re.search('|'.join(audio_photo_video_to_text_main), get_text))  or bool(re.search('|'.join(audio_photo_video_to_text), get_text))  :
+        await message.answer('Отправьте мне аудио файл, фотографию или видео')
+        await state.finish()
+
+    else:
+        await message.answer('К сожалению я еще этого не умею')
+        await state.finish()
 
 
 

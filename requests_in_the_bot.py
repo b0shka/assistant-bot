@@ -15,7 +15,7 @@ class Requests_bot:
 
     # Получение результата поиска
     async def result_message(self, search, message):
-        if bool(re.search('|'.join(weather), search)) == True:
+        if bool(re.search('|'.join(weather_main), search)) or bool(re.search('|'.join(weather), search)):
             try:
                 city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             except TypeError:
@@ -27,10 +27,10 @@ class Requests_bot:
             else:
                 await self.func.parse_weather(message, city)
 
-        elif bool(re.search('|'.join(rate), search)) == True:
+        elif bool(re.search('|'.join(rate_main), search)) or bool(re.search('|'.join(rate), search))  :
             await self.func.parse_rate(message)
 
-        elif 'новости' in search or 'news' in search:
+        elif bool(re.search('|'.join(news_main), search)) or bool(re.search('|'.join(news), search)):
             text_news = search.split(' ')
             if 'новости' in search:
                 text_news = text_news[text_news.index('новости')+1:]
@@ -43,10 +43,10 @@ class Requests_bot:
             else:
                 await self.func.parse_news(message)
 
-        elif bool(re.search('|'.join(covid), search)) == True:
+        elif bool(re.search('|'.join(covid_main), search))  or bool(re.search('|'.join(covid), search))  :
             await self.func.parse_stat_covid(message)
 
-        elif bool(re.search('|'.join(skills), search)) == True:
+        elif bool(re.search('|'.join(skills_main), search)) or bool(re.search('|'.join(skills), search)):
             markup_inline = types.InlineKeyboardMarkup()
             item_1 = types.InlineKeyboardButton(text = 'Погода', callback_data = 'weather')
             item_2 = types.InlineKeyboardButton(text = 'Курс валюты', callback_data = 'valuta')
@@ -79,29 +79,30 @@ class Requests_bot:
             markup_inline.add(item_18)
             await message.answer('Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
 
-        elif bool(re.search('|'.join(download_audio), search)) == True:
+        elif bool(re.search('|'.join(download_audio_main), search)) or bool(re.search('|'.join(download_audio), search)):
             await message.answer("Введите url")
             await Form.url.set()
 
         elif 'youtube.com' in search or 'youtu.be' in search:
             await self.func.download_audio(message)
 
-        elif bool(re.search('|'.join(convert), search)) == True:
-            if bool(re.search('|'.join(vioce_to_text), search)) == True:
+        elif bool(re.search('|'.join(convert_main), search)) or bool(re.search('|'.join(convert), search)):
+            if bool(re.search('|'.join(vioce_to_text_main), search))  or bool(re.search('|'.join(vioce_to_text), search))  :
                 await message.answer('Отправьте или перешлите голосовое сообщение')
                 await Form.voice_msg.set()
 
-            elif bool(re.search('|'.join(text_to_audio), search)) == True:
+            elif bool(re.search('|'.join(text_to_audio_main), search))  or bool(re.search('|'.join(text_to_audio), search))  :
                 await message.answer('Напишите что конвертировать')
                 await Form.text_for_convert.set()
 
-            elif bool(re.search('|'.join(audio_photo_video_to_text), search)) == True:
+            elif bool(re.search('|'.join(audio_photo_video_to_text_main), search))  or bool(re.search('|'.join(audio_photo_video_to_text), search))  :
                 await message.answer('Отправьте мне аудио файл, фотографию или видео')
 
             else:
-                await message.answer('Вы не указали что конвертировать')
+                await message.answer('Что конвертировать? (голосовое сообщение, фото, аудио, видео в текст/текст в аудио)')
+                await Form.what_convert.set()
 
-        elif bool(re.search('|'.join(feedback), search)) == True:
+        elif bool(re.search('|'.join(feedback_main), search)) or bool(re.search('|'.join(feedback), search)):
             await message.answer('Введите отзыв или пожелания')
             await Form.feedback.set()
 
@@ -114,16 +115,16 @@ class Requests_bot:
         elif ' лучше ' in search:
             await self.func.what_the_best(message)
 
-        elif bool(re.search('|'.join(random_number), search)) == True:
+        elif bool(re.search('|'.join(random_number_main), search)) or bool(re.search('|'.join(random_number), search)):
             await self.func.number_random(message)
 
-        elif bool(re.search('|'.join(population), search)) == True:
-            if bool(re.search('|'.join(country), search)) == True:
+        elif bool(re.search('|'.join(population), search)):
+            if bool(re.search('|'.join(country), search)):
                 await self.func.parse_population_country(message)
             else:
                 await self.func.parse_population(message)
 
-        elif bool(re.search('|'.join(system_number), search)) == True:
+        elif bool(re.search('|'.join(system_number_main), search)) or bool(re.search('|'.join(system_number), search)):
             await message.answer('Введите два числа через пробел, само число и систему счисления в которую перевести')
             await Form.number_system.set()
 
@@ -134,10 +135,10 @@ class Requests_bot:
             await message.answer('Вы уверены? (yes/no)')
             await Form.confirmation_deletion.set()
 
-        elif ('куб' in search or 'кости' in search) and bool(re.search('|'.join(throw), search)) == True:
+        elif ('куб' in search or 'кости' in search) and (bool(re.search('|'.join(throw_main), search)) or bool(re.search('|'.join(throw), search))):
             await bot.send_dice(message.from_user.id)
 
-        elif ' лиц' in search and bool(re.search('|'.join(recognition), search)) == True:
+        elif ' лиц' in search and (bool(re.search('|'.join(recognition_main), search)) or bool(re.search('|'.join(recognition), search))):
             await message.answer('Скиньте фотографию')
             await Form.recognition.set()
 
