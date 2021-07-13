@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import requests
 import youtube_dl
 import os
@@ -634,7 +631,7 @@ class Functions:
 
 
     # Отправка информации на почту
-    async def send_information_to_email(self, message):
+    async def send_information_to_email(self, message=None):
         try:
             msg = MIMEMultipart()
             msg['Subject'] = 'Данные'
@@ -658,7 +655,8 @@ class Functions:
             server.sendmail(user_email, user_email, msg.as_string())
             server.quit()
 
-            await message.answer('Отправка завершена')
+            if message != None:
+                await message.answer('Отправка завершена')
         except Exception as error:
             logger.error(f'[send_email] {error}')
 
@@ -699,40 +697,6 @@ class Functions:
                 btc = el.select('b')[1].text.replace(' ', '.', 2)
                 mailing_text += f'Курс биткоина {btc}\n'
                 break
-
-            # Weather
-            '''mailing_text += '\nПогода\n'
-
-            #city = self.db.get_city(user_id)[0]
-            r = requests.get(f'https://yandex.ru/pogoda/perm')
-            html = BS(r.content, 'html.parser')
-
-            for el in html.select('.header-title'):
-                parse_city = el.select('.title_level_1')[0].text
-
-            if parse_city != 'Такой страницы не существует':
-                for el in html.select('.fact__temp'):
-                    temp = el.select('.temp__value')[0].text
-                    mailing_text += f'{parse_city} {temp}\n'
-                    break
-                
-                for el in html.select('.fact__feelings'):
-                    temp_feel = el.select('.temp__value_with-unit')[0].text
-                    mailing_text += f'Ощущается как {temp_feel}\n'
-
-                    weather = el.select('.link__condition')[0].text
-                    mailing_text += f'{weather}\n'
-                    break
-
-                for el in html.select('.term_orient_v'):
-                    wind = el.select('.term__value')[0].text
-                    mailing_text += f'Ветер {wind}\n'
-                    break
-
-                for el in html.select('.title-icon'):
-                    icon_text = el.select('.title-icon__text')[0].text
-                    mailing_text += icon_text + '\n'
-                    break'''
 
             # Covid
             mailing_text += '\nСтатистика по коронавирусу\n'
@@ -786,22 +750,30 @@ class Functions:
         try:
             while True:
                 await asyncio.sleep(sleep_for)
-                time_mailing = [1, 7, 20]
-            
-                if datetime.datetime.now().hour == time_mailing[0] and datetime.datetime.now().minute == time_mailing[1] and (datetime.datetime.now().second >= time_mailing[2] and (datetime.datetime.now().second - sleep_for) <= time_mailing[2]):
-                    subscribe_users_list = Database('server.db').get_subscribe_users()
-                    text_mailing = self.message_mailig()
+                list_time_mailing = await Database('server.db').get_time_mailing_and_users()
 
-                    for i in subscribe_users_list:
-                        await bot.send_message(i[0], text_mailing)
+                for i in list_time_mailing.keys():
+                    time_mailing = list_time_mailing[i].split(':')
 
-                    await self.send_information_to_email()
+                    if len(time_mailing) == 3:
+                        for j in time_mailing:
+                            if j[0] == '0':
+                                new_j = j.replace('0', '', 1)
+                                time_mailing[time_mailing.index(j)] = new_j
+
+                    time_mailing = [int(num) for num in time_mailing]
+
+                    if datetime.datetime.now().hour == time_mailing[0] and datetime.datetime.now().minute == time_mailing[1] and (datetime.datetime.now().second >= time_mailing[2] and (datetime.datetime.now().second - sleep_for) <= time_mailing[2]):
+                        text_mailing = self.message_mailig()
+
+                        await bot.send_message(i, text_mailing)
+                        await self.send_information_to_email()
         except Exception as error:
             logger.error(f'[mailing_subscribe_users] {error}')
 
 
-    # Принудительная отправка рассылки всем пользователям
-    async def forced_mailing(self, message, mailing_text):
+    # Принудительная отправка сообщений всем пользователям
+    async def forced_mailing(self, mailing_text):
         try:
             subscribe_users_list = Database('server.db').get_all_users()
 
@@ -813,6 +785,24 @@ class Functions:
         except Exception as error:
             await bot.send_message(user_id, 'Ошибка на стороне сервера')
             logger.error(f'[forced_mailing] {error}')
+
+
+    # Отправка файла с базой данных
+    async def send_db(self, message):
+        try:
+            await bot.send_document(user_id, open('info/server.db', 'rb'))
+        except Exception as error:
+            await message.answer('Ошибка на стороне сервера')
+            logger.error(f'[send_db] {error}')
+
+
+    # Отправка файла с log
+    async def send_log(self, message):
+        try:
+            await bot.send_document(user_id, open('info/info.log', 'rb'))
+        except Exception as error:
+            await message.answer('Ошибка на стороне сервера')
+            logger.error(f'[send_log] {error}')
 
 
     # Определение лиц на фотографии

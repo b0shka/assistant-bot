@@ -19,6 +19,7 @@ class Form(StatesGroup):
     confirmation_deletion = State()
     recognition = State()
     what_convert = State()
+    change_time_mailing = State()
 
 
 token = os.environ['token']

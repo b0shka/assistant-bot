@@ -56,7 +56,7 @@ async def answer_q(message: types.Message, state: FSMContext):
 @dp.message_handler(state=Form.mailing)
 async def answer_q(message: types.Message, state: FSMContext):
     get_text = message.text
-    await func.forced_mailing(message, get_text)
+    await func.forced_mailing(get_text)
     await state.finish()
 
 @dp.message_handler(state=Form.search_news)
@@ -112,6 +112,16 @@ async def answer_q(message: types.Message, state: FSMContext):
     else:
         await message.answer('К сожалению я еще этого не умею')
         await state.finish()
+
+@dp.message_handler(state=Form.change_time_mailing)
+async def answer_q(message: types.Message, state: FSMContext):
+    get_text = message.text
+
+    if len(message.text.split(':')) != 3:
+        await message.answer('Вы не правильно ввели время')
+    else:
+        await db.change_time(message, get_text)
+    await state.finish()
 
 
 
@@ -188,20 +198,37 @@ async def callback(call):
         markup.add(item1, item2)
         await call.message.answer('Выберете режим', reply_markup=markup)
 
-    elif call.data == 'list_users':
-        await db.get_list_users(call.message)
-
-    elif call.data == 'list_subscribe_users':
-        await db.get_list_subscribe_users(call.message)
-
-    elif call.data == 'list_messages':
-        await db.get_list_message(call.message)
-
-    elif call.data == 'send_db':
-        await db.send_db(call.message)
+    elif call.data == 'time_mailing':
+        await call.message.answer('Отправьте время в которой вам будет приходить рассылка (чч:мм:сс)')
+        await Form.change_time_mailing.set()
 
     elif call.data == 'recognition_faces':
         await call.message.answer('Скиньте фотографию')
         await Form.recognition.set()
+    
+    elif call.data == 'statistic':
+        await db.get_statistic(call.message)
+
+    elif call.data == 'list_users':
+        await db.satistic_list_users(call.message)
+
+    elif call.data == 'list_subscribe_users':
+        await db.statistic_list_subscribe_users(call.message)
+
+    elif call.data == 'list_messages':
+        await db.statistic_list_message(call.message)
+
+    elif call.data == 'send_db':
+        await func.send_db(call.message)
+
+    elif call.data == 'send_log':
+        await func.send_log(call.message)
+
+    elif call.data == 'send_to_email_info':
+        await func.send_information_to_email(call.message)
+
+    elif call.data == 'send_msg_all_users':
+        await call.message.answer('Введите что разослать')
+        await Form.mailing.set()
 
     db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)

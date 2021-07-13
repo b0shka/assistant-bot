@@ -19,10 +19,11 @@ class Database:
 				user_id INTEGER NOT NULL,
 				name VARCHAR(50) NOT NULL,
 				last_name VARCHAR(100),
-				city VARCHAR(50),
-				time_message DATETIME DEFAULT CURRENT_TIMESTAMP,
+				time DATETIME DEFAULT CURRENT_TIMESTAMP,
 				status BOOLEAN,
-				mode_news BOOLEAN);""")
+				city VARCHAR(50),
+				mode_news BOOLEAN,
+				time_mailing VARCHAR(8));""")
 			self.db.commit()
 
 			self.sql.execute("""CREATE TABLE IF NOT EXISTS `message` (
@@ -48,7 +49,7 @@ class Database:
 					check_count_id += 1
 
 			if check_count_id == 0:
-				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city) VALUES (?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, ''))
+				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city, time_mailing) VALUES (?, ?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, '', '10:00:00'))
 				self.db.commit()
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
@@ -117,6 +118,31 @@ class Database:
 			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [change_city] {error}')
 
 
+	# Изменение времени рассылки в БД
+	async def change_time(self, message, new_time):
+		try:
+			self.sql.execute(f'UPDATE users SET time_mailing="{new_time}" WHERE user_id={message.from_user.id};')
+			self.db.commit()
+
+			await message.answer('Изменения сохранены')
+		except Exception as error:
+			await message.answer('Ошибка на стороне сервера')
+			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [change_time] {error}')
+
+	
+	# Получение id подписанных пользователей и времени рассылки
+	async def get_time_mailing_and_users(self):
+		try:
+			list_users_and_time = {}
+			self.sql.execute('SELECT user_id, time_mailing FROM users WHERE status=1;')
+			for i in self.sql.fetchall():
+				list_users_and_time[i[0]] = i[1]
+
+			return list_users_and_time
+		except Exception as error:
+			logger.error(f'[get_time_mailing_users] {error}')
+
+
 	#Открытие главного меню
 	async def open_main_menu(self, message, message_text):
 		markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -159,7 +185,7 @@ class Database:
 			if status_mailing[0] == 0:
 				await message.answer('Вы и не подписаны')
 			else:
-				self.sql.execute(f"UPDATE users SET status=0 WHERE user_id={message.from_user.id}")#
+				self.sql.execute(f"UPDATE users SET status=0 WHERE user_id={message.from_user.id}")
 				self.db.commit()
 				await message.answer('Вы успешно отписаны')
 		except sqlite3.OperationalError:
@@ -169,22 +195,6 @@ class Database:
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')
 			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Подписка на рассылку] {error}')
-
-
-	# Получение id подписанных пользователей
-	def get_subscribe_users(self):
-		self.sql.execute(f"SELECT user_id FROM users WHERE status=1;")
-		subscribe_users_list = self.sql.fetchall()
-
-		return subscribe_users_list
-
-
-	# Получение id всех пользователей
-	def get_all_users(self):
-		self.sql.execute("SELECT user_id FROM users;")
-		users_list = self.sql.fetchall()
-
-		return users_list
 
 
 	# Удаление данных пользователя
@@ -202,12 +212,22 @@ class Database:
 			logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [delete_data] {error}')
 
 
+	# Получение id всех пользователей
+	def get_all_users(self):
+		try:
+			self.sql.execute("SELECT user_id FROM users;")
+			users_list = self.sql.fetchall()
+
+			return users_list
+		except Exception as error:
+			logger.error(f'[get_all_users] {error}')
+
+
 	# Получение статистики
 	async def get_statistic(self, message):
 		try:
-			self.sql.execute('SELECT user_id FROM users;')
-			count_users = len(self.sql.fetchall())
-			await message.answer(f'Всего пользователей - {count_users}')
+			count_users = self.get_all_users()
+			await message.answer(f'Всего пользователей - {len(count_users)}')
 
 			self.sql.execute('SELECT user_id FROM users WHERE status=1;')
 			count_subscribe_users = len(self.sql.fetchall())
@@ -228,8 +248,8 @@ class Database:
 			logger.error(f'[get_statistic] {error}')
 
 
-	# Получение списка пользователей
-	async def get_list_users(self, message):
+	# Получение списка пользователей для статистики
+	async def satistic_list_users(self, message):
 		try:
 			self.sql.execute('SELECT user_id, name, last_name FROM users;')
 			list_users = self.sql.fetchall()
@@ -238,23 +258,24 @@ class Database:
 				await message.answer(f'{i[1]} {i[2]} {i[0]}')
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')
-			logger.error(f'[get_list_users] {error}')
+			logger.error(f'[satistic_list_users] {error}')
 
 
-	# Получение списка подписанных пользователей
-	async def get_list_subscribe_users(self, message):
+	# Получение списка подписанных пользователей для статистики
+	async def statistic_list_subscribe_users(self, message):
 		try:
-			list_subscribe_users = self.get_subscribe_users()
+			self.sql.execute(f"SELECT user_id, name, last_name FROM users WHERE status=1;")
+			list_subscribe_users = self.sql.fetchall()
 			await message.answer(f'Количество подписанных на рассылку - {len(list_subscribe_users)}')
 			for i in list_subscribe_users:
 				await message.answer(f'{i[1]} {i[2]} {i[0]}')
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')
-			logger.error(f'[get_list_subscribe_users] {error}')
+			logger.error(f'[statistic_list_subscribe_users] {error}')
 
 
-	# Получение списка частых сообщений
-	async def get_list_message(self, message):
+	# Получение списка частых сообщений для статистики
+	async def statistic_list_message(self, message):
 		try:
 			self.sql.execute('SELECT text_message FROM message;')
 			all_messages = self.sql.fetchall()
@@ -270,13 +291,4 @@ class Database:
 				await message.answer(f'{i[0]} - {i[1]}')
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')
-			logger.error(f'[get_list_message] {error}')
-
-	
-	# Отправка файла с базой данных
-	async def send_db(self, message):
-		try:
-			await bot.send_document(user_id, open('info/server.db', 'rb'))
-		except Exception as error:
-			await message.answer('Ошибка на стороне сервера')
-			logger.error(f'[send_db] {error}')
+			logger.error(f'[statistic_list_message] {error}')

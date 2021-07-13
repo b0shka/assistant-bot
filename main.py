@@ -1,4 +1,5 @@
 import asyncio
+import random
 from aiogram import executor, types
 from requests_in_the_bot import Requests_bot
 from database import Database
@@ -35,40 +36,28 @@ async def help(message: types.Message):
 	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
-# Отправка на почту log по команде
-@dp.message_handler(commands=['information'])
-async def send_information_users(message: types.Message):
-	if message.from_user.id == user_id:
-		await func.send_information_to_email(message)
-	else:
-		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
-		await message.answer(random.choice(choice_text))
-
-
 # Получение статистики по команде
-@dp.message_handler(commands=['statistic'])
-async def send_information_users(message: types.Message):
-	if message.from_user.id == user_id:
-		await db.get_statistic(message)
-	else:
-		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
-		await message.answer(random.choice(choice_text))
-
-
-# Получение детальной статистики по команде
-@dp.message_handler(commands=['statistic_detailed'])
+@dp.message_handler(commands=['panel'])
 async def send_information_users(message: types.Message):
 	if message.from_user.id == user_id:
 		markup_inline = types.InlineKeyboardMarkup()
-		item_1 = types.InlineKeyboardButton(text = 'Список пользователей', callback_data = 'list_users')
-		item_2 = types.InlineKeyboardButton(text = 'Список подписанных пользователей', callback_data = 'list_subscribe_users')
-		item_3 = types.InlineKeyboardButton(text = 'Список самых частых сообщений', callback_data = 'list_messages')
-		item_4 = types.InlineKeyboardButton(text = 'Скинуть базу данных', callback_data = 'send_db')
+		item_1 = types.InlineKeyboardButton(text = 'Стандартная статистика', callback_data = 'statistic')
+		item_2 = types.InlineKeyboardButton(text = 'Список пользователей', callback_data = 'list_users')
+		item_3 = types.InlineKeyboardButton(text = 'Список подписанных пользователей', callback_data = 'list_subscribe_users')
+		item_4 = types.InlineKeyboardButton(text = 'Список самых частых сообщений', callback_data = 'list_messages')
+		item_5 = types.InlineKeyboardButton(text = 'Скинуть базу данных', callback_data = 'send_db')
+		item_6 = types.InlineKeyboardButton(text = 'Скинуть log', callback_data = 'send_log')
+		item_7 = types.InlineKeyboardButton(text = 'Скинуть log/db на почту', callback_data = 'send_to_email_info')
+		item_8 = types.InlineKeyboardButton(text = 'Разослать всем сообщение', callback_data = 'send_msg_all_users')
 
 		markup_inline.add(item_1)
 		markup_inline.add(item_2)
 		markup_inline.add(item_3)
 		markup_inline.add(item_4)
+		markup_inline.add(item_5)
+		markup_inline.add(item_6)
+		markup_inline.add(item_7)
+		markup_inline.add(item_8)
 		await message.answer('Вот что доступно', reply_markup=markup_inline)
 	else:
 		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
@@ -80,10 +69,12 @@ async def send_information_users(message: types.Message):
 async def settings_news(message: types.Message):
 	markup_inline = types.InlineKeyboardMarkup()
 	item_1 = types.InlineKeyboardButton(text = 'Выбрать город для вывода погоды', callback_data = 'choice_city')
-	item_2 = types.InlineKeyboardButton(text = 'Вывод новостей', callback_data = 'mode_news')
+	item_2 = types.InlineKeyboardButton(text = 'Выбрать режим вывод новостей', callback_data = 'mode_news')
+	item_3 = types.InlineKeyboardButton(text = 'Изменить время для рассылки', callback_data = 'time_mailing')
 
 	markup_inline.add(item_1)
 	markup_inline.add(item_2)
+	markup_inline.add(item_3)
 	await message.answer('Выберите настройку чего вы хотите произвести', reply_markup=markup_inline)
 
 	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
@@ -103,17 +94,6 @@ async def unsubscribe(message: types.Message):
 	await db.unsubscribe_from_the_mailing(message)
 
 	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
-
-
-# Команда для срочной рассылки всем пользователям
-@dp.message_handler(commands=['mailing'])
-async def mailing(message: types.Message):
-	if message.from_user.id == user_id:
-		await message.answer('Введите что разослать')
-		await Form.mailing.set()
-	else:
-		choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
-		await message.answer(random.choice(choice_text))
 
 
 @dp.message_handler(content_types=["text"], state=None)

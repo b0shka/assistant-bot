@@ -1,37 +1,25 @@
-[INFO][2021-07-13 01:19:29,906] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-07-13 01:19:31,132] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-07-13 01:19:31,133] start_polling:360: Start polling.
-[ERROR][2021-07-13 01:19:31,795] start_polling:323: Task exception was never retrieved
-future: <Task finished name='Task-10' coro=<Dispatcher._process_polling_updates() done, defined at /usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py:409> exception=ValueError("'news' is not in list")>
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 417, in _process_polling_updates
-    for responses in itertools.chain.from_iterable(await self.process_updates(updates, fast)):
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 238, in process_updates
-    return await asyncio.gather(*tasks)
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
-    response = await handler_obj.handler(*args, **partial_data)
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/dispatcher.py", line 259, in process_update
-    return await self.message_handlers.notify(update.message)
-  File "/usr/local/lib/python3.8/dist-packages/aiogram/dispatcher/handler.py", line 116, in notify
-    response = await handler_obj.handler(*args, **partial_data)
-  File "./main.py", line 121, in answer_message
-    await req_bot.result_message(message.text.lower(), message)
-  File "/media/q/File/p/python/telegram/assistant-bot/assistant-bot-aiogram/requests_in_the_bot.py", line 38, in result_message
-    text_news = text_news[text_news.index('news')+1:]
-ValueError: 'news' is not in list
-[INFO][2021-07-13 01:19:42,106] stop_polling:435: Stop polling...
-[WARNING][2021-07-13 01:19:42,107] start_polling:329: Goodbye!
-[INFO][2021-07-13 01:21:31,986] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-07-13 01:21:32,221] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-07-13 01:21:32,222] start_polling:360: Start polling.
-[ERROR][2021-07-13 01:21:32,550] get_settings_news:81: [Vanya None 1100858556] [get_settings_news] no such table: users
-[ERROR][2021-07-13 01:21:32,682] parse_news:124: [Vanya None 1100858556] [Парсинг новостей] 'NoneType' object is not subscriptable
-[INFO][2021-07-13 01:21:33,444] create_table:36: Создание таблиц в БД
-[INFO][2021-07-13 01:21:34,121] add_new_user:54: [Vanya None 1100858556] Создан новый пользователь
-[INFO][2021-07-13 01:22:10,649] stop_polling:435: Stop polling...
-[WARNING][2021-07-13 01:22:10,650] start_polling:329: Goodbye!
-[INFO][2021-07-13 01:22:15,992] _welcome:362: Bot: Database [@your_personal_database_bot]
-[WARNING][2021-07-13 01:22:16,220] _skip_updates:358: Updates were skipped successfully.
-[INFO][2021-07-13 01:22:16,221] start_polling:360: Start polling.
-[INFO][2021-07-13 01:23:11,774] stop_polling:435: Stop polling...
-[WARNING][2021-07-13 01:23:11,775] start_polling:329: Goodbye!
+[INFO][2021-07-13 14:06:12,562] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-13 14:06:12,783] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-13 14:06:12,784] start_polling:360: Start polling.
+[ERROR][2021-07-13 14:06:15,052] get_all_users:196: [get_all_users] no such table: users
+[ERROR][2021-07-13 14:06:15,342] get_statistic:236: [get_statistic] no such table: users
+[INFO][2021-07-13 14:06:15,986] create_table:37: Создание таблиц в БД
+[INFO][2021-07-13 14:06:16,712] add_new_user:55: [Database None 1612043554] Создан новый пользователь
+[INFO][2021-07-13 14:07:01,562] add_new_user:55: [Vanya None 1100858556] Создан новый пользователь
+[INFO][2021-07-13 14:07:14,854] stop_polling:435: Stop polling...
+[WARNING][2021-07-13 14:07:14,855] start_polling:329: Goodbye!
+[INFO][2021-07-13 14:07:20,559] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-13 14:07:20,803] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-13 14:07:20,804] start_polling:360: Start polling.
+[INFO][2021-07-13 14:08:46,360] stop_polling:435: Stop polling...
+[WARNING][2021-07-13 14:08:46,362] start_polling:329: Goodbye!
+[INFO][2021-07-13 14:13:29,010] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-13 14:13:29,249] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-13 14:13:29,250] start_polling:360: Start polling.
+[INFO][2021-07-13 14:15:35,522] stop_polling:435: Stop polling...
+[WARNING][2021-07-13 14:15:35,523] start_polling:329: Goodbye!
+[INFO][2021-07-13 14:15:52,919] _welcome:362: Bot: Database [@your_personal_database_bot]
+[WARNING][2021-07-13 14:15:53,149] _skip_updates:358: Updates were skipped successfully.
+[INFO][2021-07-13 14:15:53,150] start_polling:360: Start polling.
+[INFO][2021-07-13 14:15:57,565] stop_polling:435: Stop polling...
+[WARNING][2021-07-13 14:15:57,566] start_polling:329: Goodbye!
