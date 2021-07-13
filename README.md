@@ -15,4 +15,4 @@ python3 ./main.py
 ```
 
 ### Additionally
-A `tgbot.service` file was also created to run this bot on the server
+A `tgbot.service` file was also created to run this bot on the server. The `data` folder contains text files with all possible erroneous requests

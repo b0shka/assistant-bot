@@ -1,5 +1,5 @@
-symbols_en = 'qwertyuiopasdfghjklzxcvbnm'
-symbols_ru = 'йцукенгшщзхъфывапролджэячсмитьбю'
+symbols_en = "qwertyuiopasdfghjklzxcvbnm;',./"
+symbols_ru = "йцукенгшщзхъфывапролджэячсмитьбю."
 
 def check_language(message):
 	try:
@@ -23,14 +23,16 @@ def generate_errors(message, count_error):
 		language = check_language(message)
 
 		for i in symbols[language]:
-			for j in range(len(message)):
-				error_message = message.replace(message[j], i, 1)
+			for j in message:
+				error_message = message.replace(j, i, 1)
 
-				if count_error > 1 and count_error < len(message):
-					for s in range(len(message)):
-						if s != j:
-							error_message_count = error_message.replace(message[s], i, 1)
-							error_words.add(error_message_count)
+				if count_error > 1 and count_error < len(message) and len(message) > 5:
+					for count_ in range(count_error-1):
+						for symb in symbols[language]:
+							for s in message:
+								if s != j:
+									two_error_message = error_message.replace(s, symb, 1)
+									error_words.add(two_error_message)
 				else:
 					error_words.add(error_message)
 
