@@ -1,3 +1,12 @@
+from PIL import Image, ImageDraw
+from bs4 import BeautifulSoup as BS
+from gtts import gTTS
+from moviepy.editor import *
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from config import logger, bot, user_email, user_password, user_id, bot_id, Form
+from database import Database
 import requests
 import youtube_dl
 import os
@@ -11,15 +20,6 @@ import pytesseract
 import smtplib
 import asyncio
 import face_recognition
-from PIL import Image, ImageDraw
-from bs4 import BeautifulSoup as BS
-from gtts import gTTS
-from moviepy.editor import *
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from config import logger, bot, user_email, user_password, user_id, bot_id, Form
-from database import Database
 
 
 class Functions:

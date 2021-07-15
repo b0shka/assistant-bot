@@ -1,10 +1,10 @@
-import asyncio
-import random
 from aiogram import executor, types
 from requests_in_the_bot import Requests_bot
 from database import Database
 from functions import Functions
-from config import dp, Form, user_id
+from config import dp, user_id
+import asyncio
+import random
 
 db = Database('server.db')
 req_bot = Requests_bot()

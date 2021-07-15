@@ -1,11 +1,8 @@
-import time
-import os
-import sqlite3
-import requests
-from bs4 import BeautifulSoup as BS
 from collections import Counter
 from aiogram import types
-from config import logger, bot, user_id
+from config import logger
+import sqlite3
+
 
 class Database:
 	def __init__(self, database_file):
@@ -16,22 +13,22 @@ class Database:
 	def create_table(self):
 		try:
 			self.sql.execute("""CREATE TABLE IF NOT EXISTS `users` (
-				user_id INTEGER NOT NULL,
-				name VARCHAR(50) NOT NULL,
-				last_name VARCHAR(100),
-				time DATETIME DEFAULT CURRENT_TIMESTAMP,
-				status BOOLEAN,
-				city VARCHAR(50),
-				mode_news BOOLEAN,
-				time_mailing VARCHAR(8));""")
+								user_id INTEGER NOT NULL,
+								name VARCHAR(50) NOT NULL,
+								last_name VARCHAR(100),
+								time DATETIME DEFAULT CURRENT_TIMESTAMP,
+								status BOOLEAN,
+								city VARCHAR(50),
+								mode_news BOOLEAN,
+								time_mailing VARCHAR(8));""")
 			self.db.commit()
 
 			self.sql.execute("""CREATE TABLE IF NOT EXISTS `message` (
-				user_id INTEGER NOT NULL,
-				name VARCHAR(50) NOT NULL,
-				last_name VARCHAR(100),
-				text_message TEXT NOT NULL,
-				time_message DATETIME DEFAULT CURRENT_TIMESTAMP);""")
+								user_id INTEGER NOT NULL,
+								name VARCHAR(50) NOT NULL,
+								last_name VARCHAR(100),
+								text_message TEXT NOT NULL,
+								time_message DATETIME DEFAULT CURRENT_TIMESTAMP);""")
 			self.db.commit()
 
 			logger.info("Создание таблиц в БД")
@@ -41,15 +38,17 @@ class Database:
 	# Добавление нового пользователя в БД
 	def add_new_user(self, id, first_name, last_name):
 		try:
-			check_count_id = 0
-			self.sql.execute("SELECT user_id FROM users;")
+			self.sql.execute(f"SELECT COUNT({id}) FROM users;")
 
-			for i in self.sql.fetchall():
-				if id == i[0]:
-					check_count_id += 1
-
-			if check_count_id == 0:
-				self.sql.execute("INSERT INTO users (user_id, name, last_name, status, mode_news, city, time_mailing) VALUES (?, ?, ?, ?, ?, ?, ?)", (id, first_name, last_name, 0, 0, '', '10:00:00'))
+			if self.sql.fetchone()[0] == 0:
+				self.sql.execute("""INSERT INTO users ( user_id, name, 
+														last_name, 
+														status, 
+														mode_news, 
+														city, 
+														time_mailing) 
+														VALUES (?, ?, ?, ?, ?, ?, ?)""", 
+														(id, first_name, last_name, 0, 0, '', '10:00:00'))
 				self.db.commit()
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
@@ -63,7 +62,12 @@ class Database:
 	# Добавление сообщения в БД
 	def add_message(self, text_message, id, first_name, last_name):
 		try:
-			self.sql.execute("INSERT INTO message (user_id, name, last_name, text_message) VALUES (?, ?, ?, ?)", (id, first_name, last_name, text_message))
+			self.sql.execute("""INSERT INTO message (user_id, 
+													name, 
+													last_name, 
+													text_message) 
+													VALUES (?, ?, ?, ?)""", 
+													(id, first_name, last_name, text_message))
 			self.db.commit()
 			self.add_new_user(id, first_name, last_name)
 		except sqlite3.OperationalError:
