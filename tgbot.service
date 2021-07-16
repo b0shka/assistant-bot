@@ -3,8 +3,8 @@ Description=Telegram bot
 After=network.target
 
 [Service]
-WorkingDirectory=/home/b0shka/assistant/
-ExecStart=/usr/bin/python3 /home/b0shka/assistant/main.py
+WorkingDirectory=/home/q/assistant/
+ExecStart=/usr/bin/python3 /home/q/assistant/main.py
 Restart=always
 
 [Install]

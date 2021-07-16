@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from config import dp, bot, Form
+from config import dp, Form
 from functions import Functions
 from database import Database
 from list_requests import *
@@ -116,10 +116,7 @@ async def answer_q(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda call: True)
 async def callback(call):
-    if call.data == 'weather':
-        await func.parse_weather(call.message)
-
-    elif call.data == 'valuta':
+    if call.data == 'valuta':
         await func.parse_rate(call.message)
 
     elif call.data == 'news':
@@ -194,7 +191,7 @@ async def callback(call):
     elif call.data == 'recognition_faces':
         await call.message.answer('Скиньте фотографию')
         await Form.recognition.set()
-    
+
     elif call.data == 'statistic':
         await db.get_statistic(call.message)
 

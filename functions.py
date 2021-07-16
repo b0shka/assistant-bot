@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw
+from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
 from moviepy.editor import *
