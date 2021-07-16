@@ -80,17 +80,6 @@ async def answer_q(message: types.Message, state: FSMContext):
         await message.answer('Удаление отменено')
     await state.finish()
 
-@dp.message_handler(content_types=["photo"], state=Form.recognition)
-async def answer_q(message: types.Message, state: FSMContext):
-    await message.answer('Распознавание началось')
-
-    convert_name_file = 'img.jpg'
-    file_info = await bot.get_file(message.photo[-1].file_id)
-    await bot.download_file(file_info.file_path, convert_name_file)
-
-    await func.recognition_faces(message, convert_name_file)
-    await state.finish()
-
 @dp.message_handler(state=Form.what_convert)
 async def answer_q(message: types.Message, state: FSMContext):
     get_text = message.text

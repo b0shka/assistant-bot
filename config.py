@@ -16,7 +16,6 @@ class Form(StatesGroup):
     search_news = State()
     write_city = State()
     confirmation_deletion = State()
-    recognition = State()
     what_convert = State()
     change_time_mailing = State()
 

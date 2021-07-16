@@ -143,10 +143,6 @@ class Requests_bot:
         elif ('куб' in search or 'кости' in search) and (bool(re.search('|'.join(throw_main), search)) or bool(re.search('|'.join(throw), search))):
             await bot.send_dice(message.from_user.id)
 
-        elif ' лиц' in search and (bool(re.search('|'.join(recognition_main), search)) or bool(re.search('|'.join(recognition), search))):
-            await message.answer('Скиньте фотографию')
-            await Form.recognition.set()
-
         else:
             choice_text = ('Меня еще этому не научили', 'Я не знаю про что вы', 'У меня нет ответа', 'Я еще этого не умею', 'Беспонятия про что вы')
             await message.answer(random.choice(choice_text))

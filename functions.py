@@ -19,7 +19,6 @@ import random
 import pytesseract
 import smtplib
 import asyncio
-import face_recognition
 
 
 class Functions:
@@ -803,30 +802,3 @@ class Functions:
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[send_log] {error}')
-
-
-    # Определение лиц на фотографии
-    async def recognition_faces(self, message, photo_name):
-        try:
-            image = face_recognition.load_image_file(photo_name)
-            locations = face_recognition.face_locations(image)
-
-            pil_image = Image.fromarray(image)
-            pil_draw = ImageDraw.Draw(pil_image)
-
-            for (top, right, bottom, left) in locations:
-                pil_draw.rectangle(((left, top), (right, bottom)), outline=(255, 255, 0), width=4)
-
-            del pil_draw
-            pil_image.save(f"new_{photo_name}")
-
-            await bot.send_photo(message.from_user.id, open(f"new_{photo_name}", 'rb'))
-        except Exception as error:
-            await bot.send_message(user_id, 'Ошибка на стороне сервера')
-            logger.error(f'[recognition_faces] {error}')
-
-        try:
-            os.remove(photo_name)
-            os.remove(f'new_{photo_name}')
-        except:
-            pass
