@@ -24,8 +24,8 @@ token = os.environ['token']
 bot = Bot(token=token)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-user_email = os.environ['user_email']
-user_password = os.environ['user_password']
+user_email = os.environ['email']
+user_password = os.environ['password']
 user_id = int(os.environ['user_id'])
 bot_id = int(os.environ['bot_id'])
 

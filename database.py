@@ -38,8 +38,8 @@ class Database:
 	# Добавление нового пользователя в БД
 	def add_new_user(self, id, first_name, last_name):
 		try:
-			self.sql.execute(f"SELECT COUNT({id}) FROM users;")
-
+			self.sql.execute(f"SELECT COUNT(*) FROM users WHERE user_id={id};")
+			
 			if self.sql.fetchone()[0] == 0:
 				self.sql.execute("""INSERT INTO users ( user_id, name, 
 														last_name, 
