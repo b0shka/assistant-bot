@@ -2,9 +2,9 @@ from PIL import Image
 from bs4 import BeautifulSoup as BS
 from gtts import gTTS
 from moviepy.editor import *
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
+#from email.mime.text import MIMEText
+#from email.mime.multipart import MIMEMultipart
+#from email.mime.application import MIMEApplication
 from config import logger, bot, user_email, user_password, user_id, bot_id, Form
 from database import Database
 import requests
@@ -17,7 +17,7 @@ import re
 import datetime
 import random
 import pytesseract
-import smtplib
+#import smtplib
 import asyncio
 
 
@@ -246,7 +246,7 @@ class Functions:
     async def answer_user(self, message, get_text):
         # https://accounts.google.com/DisplayUnlockCaptcha
         try:
-            msg = MIMEMultipart()
+            '''msg = MIMEMultipart()
             msg['Subject'] = 'Отзыв'
             body = get_text
             msg.attach(MIMEText(body, 'plain'))
@@ -254,7 +254,10 @@ class Functions:
             server.starttls()
             server.login(user_email, user_password)
             server.sendmail(user_email, user_email, msg.as_string())
-            server.quit()
+            server.quit()'''
+
+            await bot.send_message(user_id, f'[ОТЗЫВ] {get_text}')
+
             await message.answer('Сообщение отправленно, спасибо большое за отзыв!')
 
             logger.info(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка отзыва]')
@@ -631,8 +634,9 @@ class Functions:
 
     # Отправка информации на почту
     async def send_information_to_email(self, message=None):
+        # https://accounts.google.com/DisplayUnlockCaptcha
         try:
-            msg = MIMEMultipart()
+            '''msg = MIMEMultipart()
             msg['Subject'] = 'Данные'
             body = 'Отправка log/db'
             msg.attach(MIMEText(body, 'plain'))
@@ -652,10 +656,10 @@ class Functions:
             server.starttls()
             server.login(user_email, user_password)
             server.sendmail(user_email, user_email, msg.as_string())
-            server.quit()
+            server.quit()'''
 
-            if message != None:
-                await message.answer('Отправка завершена')
+            await bot.send_document(user_id, open('info/server.db', 'rb'))
+            await bot.send_document(user_id, open('info/info.log', 'rb'))
         except Exception as error:
             logger.error(f'[send_email] {error}')
 

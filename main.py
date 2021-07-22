@@ -47,7 +47,7 @@ async def send_information_users(message: types.Message):
 		item_4 = types.InlineKeyboardButton(text = 'Список самых частых сообщений', callback_data = 'list_messages')
 		item_5 = types.InlineKeyboardButton(text = 'Скинуть базу данных', callback_data = 'send_db')
 		item_6 = types.InlineKeyboardButton(text = 'Скинуть log', callback_data = 'send_log')
-		item_7 = types.InlineKeyboardButton(text = 'Скинуть log/db на почту', callback_data = 'send_to_email_info')
+		item_7 = types.InlineKeyboardButton(text = 'Скинуть log/db', callback_data = 'send_to_email_info')
 		item_8 = types.InlineKeyboardButton(text = 'Разослать всем сообщение', callback_data = 'send_msg_all_users')
 
 		markup_inline.add(item_1)

@@ -68,18 +68,17 @@ class Requests_bot:
             item_13 = types.InlineKeyboardButton(text = 'Население стран', callback_data = 'population_country')
             item_14 = types.InlineKeyboardButton(text = 'Голосовое сообщение в текст', callback_data = 'convert_voice_to_text')
             item_15 = types.InlineKeyboardButton(text = 'Фото/аудио/видео файл в текст', callback_data = 'convert_audio_photo_video_to_text')
-            item_16 = types.InlineKeyboardButton(text = 'Найти лица на фотографии', callback_data = 'recognition_faces')
-            item_17 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
+            item_16 = types.InlineKeyboardButton(text = 'Отправить разработчику анонимный отзыв', callback_data = 'answer_user')
 
             markup_inline.add(item_1, item_2, item_3)
             markup_inline.add(item_4, item_5)
             markup_inline.add(item_6, item_7)
-            markup_inline.add(item_8, item_9, item_10)
-            markup_inline.add(item_11, item_12)
-            markup_inline.add(item_13, item_14)
+            markup_inline.add(item_8, item_9)
+            markup_inline.add(item_10, item_11)
+            markup_inline.add(item_12, item_13)
+            markup_inline.add(item_14)
             markup_inline.add(item_15)
             markup_inline.add(item_16)
-            markup_inline.add(item_17)
             await message.answer('Вот что я умею\nДля полного списка команд введите /help', reply_markup=markup_inline)
 
         elif bool(re.search('|'.join(download_audio_main), search)) or bool(re.search('|'.join(download_audio), search)):

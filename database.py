@@ -1,6 +1,6 @@
 from collections import Counter
 from aiogram import types
-from config import logger, user_id, bot
+from config import logger, user_id, bot_id, bot
 import sqlite3
 
 
@@ -53,7 +53,7 @@ class Database:
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
 
-				if id != user_id:
+				if id != user_id and id != bot_id:
 					await bot.send_message(user_id, f'[{first_name} {last_name} {id}] Создан новый пользователь')
 		except sqlite3.OperationalError:
 			self.create_table()
