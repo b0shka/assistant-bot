@@ -20,14 +20,14 @@ class Form(StatesGroup):
     change_time_mailing = State()
 
 
-token = os.environ['token']
+token = os.environ['TOKEN']
 bot = Bot(token=token)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-user_email = os.environ['email']
-user_password = os.environ['password']
-user_id = int(os.environ['user_id'])
-bot_id = int(os.environ['bot_id'])
+user_email = os.environ['EMAIL']
+user_password = os.environ['PASSWORD']
+user_id = int(os.environ['USER_ID'])
+bot_id = int(os.environ['BOT_ID'])
 
 if not os.path.exists('info'):
 	os.mkdir('info')

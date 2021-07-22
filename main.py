@@ -24,7 +24,7 @@ async def start(message: types.Message):
 	await message.answer(send_mess, reply_markup = markup)
 
 	db.create_table()
-	db.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 # Команда для вывода списка всех команд бота
@@ -33,7 +33,7 @@ async def help(message: types.Message):
 	send_mess = 'Вот полный список запросов:\n\nНовости\nНовости (и слова по которым искать)\nПогода\nСтатистика по коронавирусу\nКурс валюты\nЧто ты умеешь\nНаселение\nСкачать аудио (и позже скинуть ссылку на видео из YouTube)\nДа или нет\nОдин или два\nЧто лучше\nЧто лучше (и дописать сразу 2 действия через или)\nРандомное число\nРандомное число от ... до ...\nРандомное число от ...\nРандомное число до ...\nБросить кубик\nСистема счисление\nВозможность пописаться на рассылку основной информации дважды в день, для подписки введите /subscribe, для отписки введите /unsubscribe\nОтправьте голосовое сообщение, и я распознаю вашу просьбу\nКонвертировать голосовое сообщение (и позже отправьте или перешлите голосовое сообщение)\nПросто скиньте фотографию или аудио файл и я конвертирую их в текст\nКонвертировать видео (и позже скиньте его)\nКонвертировать текст (и позже напишите сам текст)\nНаписать отзыв (и позже написать текст)\n/settings (для настройки вывода новостей, и указания вашего города для вывода погоды)'
 	await message.answer(send_mess)
 
-	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 # Получение статистики по команде
@@ -77,7 +77,7 @@ async def settings_news(message: types.Message):
 	markup_inline.add(item_3)
 	await message.answer('Выберите настройку чего вы хотите произвести', reply_markup=markup_inline)
 
-	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 # Команда для пописки на рассылку
@@ -85,7 +85,7 @@ async def settings_news(message: types.Message):
 async def subscribe(message: types.Message):
 	await db.subscribe_to_the_mailing(message)
 
-	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 # Команда для отписки от рассылки
@@ -93,14 +93,14 @@ async def subscribe(message: types.Message):
 async def unsubscribe(message: types.Message):
 	await db.unsubscribe_from_the_mailing(message)
 
-	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 @dp.message_handler(content_types=["text"], state=None)
 async def answer_message(message: types.Message):
 	await req_bot.result_message(message.text.lower(), message)
 
-	db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+	await db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
 # Голосовой поиск

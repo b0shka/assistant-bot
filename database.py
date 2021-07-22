@@ -1,6 +1,6 @@
 from collections import Counter
 from aiogram import types
-from config import logger
+from config import logger, user_id, bot
 import sqlite3
 
 
@@ -36,7 +36,7 @@ class Database:
 			logger.error(f'[create_table] {error}')
 
 	# Добавление нового пользователя в БД
-	def add_new_user(self, id, first_name, last_name):
+	async def add_new_user(self, id, first_name, last_name):
 		try:
 			self.sql.execute(f"SELECT COUNT(*) FROM users WHERE user_id={id};")
 			
@@ -52,15 +52,18 @@ class Database:
 				self.db.commit()
 
 				logger.info(f'[{first_name} {last_name} {id}] Создан новый пользователь')
+
+				if id != user_id:
+					await bot.send_message(user_id, f'[{first_name} {last_name} {id}] Создан новый пользователь')
 		except sqlite3.OperationalError:
 			self.create_table()
-			self.add_new_user(id, first_name, last_name)
+			await self.add_new_user(id, first_name, last_name)
 		except Exception as error:
 			logger.error(f'[{first_name} {last_name} {id}] [add_new_user] {error}')
 
 
 	# Добавление сообщения в БД
-	def add_message(self, text_message, id, first_name, last_name):
+	async def add_message(self, text_message, id, first_name, last_name):
 		try:
 			self.sql.execute("""INSERT INTO message (user_id, 
 													name, 
@@ -69,10 +72,10 @@ class Database:
 													VALUES (?, ?, ?, ?)""", 
 													(id, first_name, last_name, text_message))
 			self.db.commit()
-			self.add_new_user(id, first_name, last_name)
+			await self.add_new_user(id, first_name, last_name)
 		except sqlite3.OperationalError:
 			self.create_table()
-			self.add_message(text_message, id, first_name, last_name)
+			await self.add_message(text_message, id, first_name, last_name)
 		except Exception as error:
 			logger.error(f'[{first_name} {last_name} {id}] [add_message] {error}')
 
@@ -173,7 +176,7 @@ class Database:
 				await message.answer('Вы успешно подписаны')
 		except sqlite3.OperationalError:
 			self.create_table()
-			self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+			await self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 			await self.subscribe_to_the_mailing(message)
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')
@@ -194,7 +197,7 @@ class Database:
 				await message.answer('Вы успешно отписаны')
 		except sqlite3.OperationalError:
 			self.create_table()
-			self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+			await self.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 			await self.unsubscribe_from_the_mailing(message)
 		except Exception as error:
 			await message.answer('Ошибка на стороне сервера')

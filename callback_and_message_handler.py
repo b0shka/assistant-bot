@@ -67,7 +67,7 @@ async def answer_q(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Form.write_city)
 async def answer_q(message: types.Message, state: FSMContext):
-    get_text = message.text
+    get_text = message.text.lower()
     await db.change_city(message, get_text)
     await state.finish()
 
@@ -217,4 +217,4 @@ async def callback(call):
         await call.message.answer('Введите что разослать')
         await Form.mailing.set()
 
-    db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)
+    await db.add_message(call.data, call.message.from_user.id, call.message.from_user.first_name, call.message.from_user.last_name)

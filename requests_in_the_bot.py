@@ -19,7 +19,7 @@ class Requests_bot:
             try:
                 city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
             except TypeError:
-                self.db.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                await self.db.add_new_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
                 city = self.db.get_city(message.from_user.id, message.from_user.first_name, message.from_user.last_name)[0]
 
             if city == '':

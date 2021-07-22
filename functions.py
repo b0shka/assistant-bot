@@ -148,7 +148,7 @@ class Functions:
             if count_news == 0:
                 await message.answer('Ничего не найдено')
 
-            self.db.add_message(f'[Новости по ключевым словам] {text_news}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(f'[Новости по ключевым словам] {text_news}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             if count_news == 0:
                 await message.answer('Ошибка на стороне сервера')
@@ -236,7 +236,7 @@ class Functions:
                     await bot.send_audio(message.from_user.id, open(i, 'rb'))
                     os.remove(i)
 
-            self.db.add_message(url, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(url, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка аудио с YouTube] {error}')
@@ -258,7 +258,7 @@ class Functions:
             await message.answer('Сообщение отправленно, спасибо большое за отзыв!')
 
             logger.info(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка отзыва]')
-            self.db.add_message(f'[Отзыв] {get_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(f'[Отзыв] {get_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Отправка отзыва] {error}')
@@ -305,9 +305,9 @@ class Functions:
                     await message.answer('Ошибка в записи')
 
                 if get_number == None:
-                    self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                    await self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
                 else:
-                    self.db.add_message(get_number, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                    await self.db.add_message(get_number, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Рандомное число] {error}')
@@ -387,7 +387,7 @@ class Functions:
             else:
                 await message.answer('Ошибка в записи')
 
-            self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Системы счисления] {error}')
@@ -414,7 +414,7 @@ class Functions:
                 else:
                     await message.answer('Ошибка в записи')
 
-                self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                await self.db.add_message(message.text, message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Что лучше] {error}')
@@ -438,7 +438,7 @@ class Functions:
             with sr.AudioFile('audio.wav') as source:
                 text_from_voice = r.recognize_google(r.listen(source), language="ru_RU").lower()
 
-            self.db.add_message(f'[Голосовое] {text_from_voice}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(f'[Голосовое] {text_from_voice}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
             try:
                 os.remove('audio.ogg')
@@ -465,7 +465,7 @@ class Functions:
             with open("audio.mp3", 'rb') as audio:
                 await bot.send_audio(message.from_user.id, audio)
 
-            self.db.add_message(f'[Конвертация текста] {text_for_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(f'[Конвертация текста] {text_for_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
         except Exception as error:
             await message.answer('Ошибка на стороне сервера')
             logger.error(f'[{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}] [Конвертирование текста в аудио] {error}')
@@ -501,7 +501,7 @@ class Functions:
         result_text = pytesseract.image_to_string(img, lang='rus')
 
         await message.answer(result_text)
-        self.db.add_message(f'[Конвертация фотографии в текст] {result_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+        await self.db.add_message(f'[Конвертация фотографии в текст] {result_text}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
     # Конвертация аудио в текст
     async def convert_audio_to_text(self, message):
@@ -537,7 +537,7 @@ class Functions:
                         result_convert += str(r.recognize_google(audio, language="ru_RU").lower())
                     else:
                         await message.answer(result_convert)
-                        self.db.add_message(f'[Конвертация аудио файла] {result_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+                        await self.db.add_message(f'[Конвертация аудио файла] {result_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
                         result_convert = str(r.recognize_google(audio, language="ru_RU").lower())
                 except sr.UnknownValueError:
                     count_long_pause += 1
@@ -545,7 +545,7 @@ class Functions:
                         break
 
             await message.answer(result_convert)
-            self.db.add_message(f'[Конвертация аудио файла] {result_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
+            await self.db.add_message(f'[Конвертация аудио файла] {result_convert}', message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 
 
     # Конвертация видео в текст
